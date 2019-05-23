@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 import IndexPage from '@/pages/IndexPage.vue'
 import TablePage from '@/pages/TablePage.vue'
+import TableTypePage from '@/pages/TableTypePage.vue'
 
 Vue.use(VueRouter)
 
@@ -16,8 +17,12 @@ export default new VueRouter({
       component: IndexPage
     },
     {
+      path: '/table',
+      component: TablePage
+    },
+    {
       path: '/table/:type',
-      component: TablePage,
+      component: TableTypePage,
       meta: {
         parent: 'table',
       },

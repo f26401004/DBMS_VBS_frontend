@@ -11,10 +11,11 @@
         text-color="#fff"
         active-text-color="#ffd04b" 
       )
-        el-submenu( index="/table" )
+        el-submenu( index="/submenu-table" )
           template( slot="title" )
             i( class="el-icon-document" )
             span Table
+          el-menu-item( index="/table" ) All
           el-menu-item( index="/table/users" ) Users
           el-menu-item( index="/table/cards" ) Cards
           el-menu-item( index="/table/cardTypes" ) CardTypes
