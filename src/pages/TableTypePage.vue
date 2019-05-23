@@ -48,6 +48,7 @@
             el-button(
               type="primary"
               icon="el-icon-plus"
+              v-on:click="showAddModal = true"
             ) Add row
         el-row
           el-col( v-bind:span="24" )
@@ -81,6 +82,27 @@
                     size="small"
                     icon="el-icon-edit"
                   ) Edit
+    el-dialog(
+      v-bind:title="`Add new row to ${$route.params.type.toUpperCase()} table`"
+      v-bind:visible.sync="showAddModal"
+    )
+      el-form( v-bind:model="form" )
+        el-form-item(
+          v-for="(iter, index) of formColumns"
+          v-bind:key="`${$route.params.type}-table-form-${index}`"
+          v-bind:label="iter.name"
+        )
+          el-input(v-if="iter.type === 'input'")
+          el-select(v-if="iter.type === 'select'")
+            el-option(
+              v-for="(target, idx) of iter.options"
+              v-bind:key="`${$route.params.type}-table-form-select-option${idx}`"
+              v-bind:label="target"
+              v-bind:value="iter.values[idx]"
+            )
+      span( slot="footer" )
+        el-button( v-on:click="showAddModal = false" ) Cancel
+        el-button( v-on:click="showAddModal = false" type="primary" ) Submit
 </template>
 
 <script>
@@ -89,6 +111,7 @@ import gql from 'graphql-tag'
 export default {
   data: function () {
     return {
+      showAddModal: false,
       targetCode: '',
       tableColumns: {
         users: [ 'username', 'authCode', 'SSN', 'assets', 'permission', 'createdAt', 'updatedAt' ],
@@ -119,6 +142,62 @@ export default {
         console.log(data[this.$route.params.type])
         return data[this.$route.params.type]
       }
+    }
+  },
+  computed: {
+    formColumns: function () {
+      switch (this.$route.params.type) {
+        case 'users':
+          return [
+            { name: 'useranme', type: 'input' },
+            { name: 'authCode', type: 'input' },
+            { name: 'SSN', type: 'input' },
+            { name: 'assets', type: 'input' },
+            { name: 'permission', type: 'select', options: ['Admin', 'General'], values: [0, 1] }
+          ]
+        case 'cards':
+          return [
+            { name: 'cardNo', type: 'input' },
+            { name: 'csc', type: 'input' },
+            { name: 'type', type: 'select', options: ['晶片金融卡', 'VISA 金融卡'], values: [1, 2] },
+            { name: 'assets', type: 'input' },
+            { name: 'owner', type: 'input' }
+          ]
+        case 'cardTypes':
+          return [
+            { name: 'name', type: 'input' }
+          ]
+        case 'transactionTypes':
+          return [
+            { name: 'name', type: 'input' }
+          ]
+        case 'insurances':
+          return [
+            { name: 'user', type: 'input' },
+            { name: 'type', type: 'select', options: [], values: [] },
+            { name: 'term', type: 'input' }
+          ]
+        case 'insuranceTypes':
+          return [
+            { name: 'name', type: 'input' }
+          ]
+        case 'deposits':
+          return [
+            { name: 'user', type: 'input' },
+            { name: 'type', type: 'select', options: [], values: [] },
+            { name: 'term', type: 'input' }
+          ]
+        case 'depositTypes':
+          return [
+            { name: 'name', type: 'input' }
+          ]
+        case 'interestRates':
+          return [
+            { name: 'name', type: 'input' },
+            { name: 'value', type: 'input' }
+          ]
+      }
+      return []
     }
   }
 }
