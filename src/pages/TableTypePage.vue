@@ -21,29 +21,36 @@
             el-alert(
               title="Description:"
               type="info"
-              description="You can input the formal SQL expression to query the database in your need."
+              v-bind:description="`You can input the formal SQL expression to query the database in your need. But ONLY within ${$route.params.type.toUpperCase()} table!!`"
             )
         el-row
           el-col( v-bind:span="24" )
             el-input(
               placeholder="Please input formal SQL expression here ..."
-              v-model="targetCode"
+              v-model="querySentence"
               v-bind:clearable="true"
             )
               el-button(
                 slot="append"
                 icon="el-icon-search"
+                v-on:click="rawQuery"
               )
       el-col( v-bind:span="24" )
         el-divider
       el-col( v-bind:span="24" )
         el-row( type="flex" align="middle" )
-          el-col( v-bind:span="22" )
+          el-col( v-bind:span="20" )
             el-row( type="flex" align="middle" v-bind:gutter="16" )
               el-col( v-bind:span="0.5" )
                 i( class="el-icon-receiving" )
               el-col( v-bind:span="23.5" )
                 h4 Result Section
+          el-col( v-bind:span="2" )
+            el-button(
+              type="primary"
+              icon="el-icon-search"
+              v-on:click=""
+            ) Fetch
           el-col( v-bind:span="2" )
             el-button(
               type="primary"
@@ -61,7 +68,7 @@
           el-col( v-bind:span="24" )
             el-table( v-bind:data="tableData" )
               el-table-column(
-                v-for="(iter, index) of tableColumns[$route.params.type]"
+                v-for="(iter, index) of displayTableColumns[$route.params.type]"
                 v-bind:key="`vbs_${$route.params.type}_table_${iter}`"
                 v-bind:prop="iter"
                 v-bind:label="iter"
@@ -76,6 +83,7 @@
                     type="text"
                     size="small"
                     icon="el-icon-delete"
+                    v-on:click="deleteOperation(scope.$index)"
                   ) Delete
                   el-button(
                     type="text"
@@ -86,7 +94,7 @@
       v-bind:title="`Add new row to ${$route.params.type.toUpperCase()} table`"
       v-bind:visible.sync="showAddModal"
     )
-      el-form( v-bind:model="form" )
+      el-form
         el-form-item(
           v-for="(iter, index) of formColumns"
           v-bind:key="`${$route.params.type}-table-form-${index}`"
@@ -112,7 +120,19 @@ export default {
   data: function () {
     return {
       showAddModal: false,
-      targetCode: '',
+      querySentence: '',
+      displayTableColumns: {
+        users: [ 'username', 'authCode', 'SSN', 'assets', 'permission', 'createdAt', 'updatedAt' ],
+        cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
+        cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        transactions: [ 'id', 'user', 'target', 'type', 'value', 'createdAt', 'updatedAt' ],
+        transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        insurances: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
+        insuranceTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        deposits: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
+        depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        interestRates: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
+      },
       tableColumns: {
         users: [ 'username', 'authCode', 'SSN', 'assets', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
@@ -131,7 +151,6 @@ export default {
   apollo: {
     tableData: {
       query: function () {
-        console.log(this.tableColumns[this.$route.params.type].join(',', ))
         return gql`query {
           ${this.$route.params.type} {
             ${this.tableColumns[this.$route.params.type].join(',', )}
@@ -145,6 +164,31 @@ export default {
     }
   },
   computed: {
+    tablePK: function () {
+      switch (this.$route.params.type) {
+        case 'users':
+          return 'username'
+        case 'cards':
+          return 'cardNo'
+        case 'cardTypes':
+          return 'id'
+        case 'transactions':
+          return 'id'
+        case 'transactionTypes':
+          return 'id'
+        case 'insurances':
+          return 'id'
+        case 'insuranceTypes':
+          return 'id'
+        case 'deposits':
+          return 'id'
+        case 'depositTypes':
+          return 'id'
+        case 'interestRates':
+          return 'id'
+      }
+      return null
+    },
     formColumns: function () {
       switch (this.$route.params.type) {
         case 'users':
@@ -198,6 +242,97 @@ export default {
           ]
       }
       return []
+    }
+  },
+  methods: {
+    rawQuery: async function () {
+      // prevent from illegal query
+      const tableName = this.$route.params.type[0].toUpperCase() + this.$route.params.type.substr(1)
+      const regx = /(?<=from|join|FROM|JOIN)\s+(\w+)/g
+      const queryTableName = this.querySentence.match(regx).map(target => target.replace(' ', ''))
+      console.log(queryTableName)
+      if (queryTableName.length > 1 || !queryTableName.includes(this.$route.params.type)) {
+        this.$message.error(`You are allowd to query with ${tableName} table ONLY!!`)
+        return
+      }
+      if (!this.querySentence) {
+        return
+      }
+      try {
+        const result = await fetch('http://localhost:3000/raw-sql', {
+          method: 'POST',
+          headers: new Headers({
+            'Content-Type': 'application/json'
+          }),
+          body: JSON.stringify({
+            sentence: this.querySentence
+          })
+        })
+        if (result.status !== 200) {
+          throw result
+        }
+        // if the operation is select operation
+        if (this.querySentence.toLowerCase().indexOf('select') > -1) {
+          this.tableData = await result.json()
+          const selectedColumns = Object.keys(this.tableData[0])
+          this.displayTableColumns[this.$route.params.type] = selectedColumns
+        }
+        this.$message.success('Successful operation!!')
+      } catch (error) {
+        const msg = await error.text()
+        this.$message.error(msg)
+        console.log(msg)
+      }
+    },
+    deleteOperation: async function (index) {
+      // get the record primary key
+      const primaryKey = this.tableData[index][this.tablePK]
+      // confirm the operation
+      try {
+        await this.$confirm(`Are you sure you want to delete primary key ${primaryKey} record?`, 'Warning', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'warning'
+        })
+      } catch (error) {
+        return
+      }
+      try {
+        const tableName = this.$route.params.type[0].toUpperCase() + this.$route.params.type.substr(1)
+        this.$apollo.mutate({
+          mutation: function () {
+            return gql`
+              mutation ($keys: [String!]!) {
+                delete${tableName}(keys: $keys)
+              }
+            `
+          },
+          variables: {
+            keys: [primaryKey]
+          },
+          update: function (store) {
+            const query = gql`query {
+              ${this.$route.params.type} {
+                ${this.tableColumns[this.$route.params.type].join(',', )}
+              }
+            }` 
+            // get the data from query
+            const data = store.readQuery({ query: query })
+            const index = data.findIndex(target => target[this.tablePK] === primaryKey)
+            data.splice(index, 1)
+            // write back to the cache
+            store.writeQuery({
+              query: query,
+              data: data
+            })
+          }
+        })
+        this.$message.success(`SuccessFul delete primary key: ${primaryKey} record in ${tableName}`)
+      } catch (error) {
+        const msg = await error.text()
+        this.$message.error(msg)
+        console.log(msg)
+      }
     }
   }
 }
