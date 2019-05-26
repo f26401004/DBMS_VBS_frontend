@@ -21,7 +21,7 @@
             el-alert(
               title="Description:"
               type="info"
-              v-bind:description="`You can input the formal SQL expression to query the database in your need. But ONLY within ${$route.params.type.toUpperCase()} table!!`"
+              v-bind:description="`You can input the formal SQL expression to query the database in your need. But you are ONLY allowed to query within ${$route.params.type.toUpperCase()} table!!`"
             )
         el-row
           el-col( v-bind:span="24" )
@@ -56,7 +56,7 @@
               type="primary"
               icon="el-icon-plus"
               v-on:click="showAddModal = true"
-            ) Add row
+            ) Add record
         el-row
           el-col( v-bind:span="24" )
             el-alert(
@@ -91,7 +91,7 @@
                     icon="el-icon-edit"
                   ) Edit
     el-dialog(
-      v-bind:title="`Add new row to ${$route.params.type.toUpperCase()} table`"
+      v-bind:title="`Add new record to ${$route.params.type.toUpperCase()} table`"
       v-bind:visible.sync="showAddModal"
     )
       el-form
@@ -151,11 +151,7 @@ export default {
   apollo: {
     tableData: {
       query: function () {
-        return gql`query {
-          ${this.$route.params.type} {
-            ${this.tableColumns[this.$route.params.type].join(',', )}
-          }
-        }`
+        return this.fetchExpression
       },
       update: function (data) {
         console.log(data[this.$route.params.type])
@@ -164,6 +160,9 @@ export default {
     }
   },
   computed: {
+    tableName: function () {
+      return this.$route.params.type[0].toUpperCase() + this.$route.params.type.substr(1)
+    },
     tablePK: function () {
       switch (this.$route.params.type) {
         case 'users':
@@ -242,17 +241,30 @@ export default {
           ]
       }
       return []
+    },
+    fetchExpression: function () {
+      return gql`query {
+        ${this.$route.params.type} {
+          ${this.tableColumns[this.$route.params.type].join(',', )}
+        }
+      }`
+    },
+    deleteExpression: function () {
+      return gql`mutation ($targetKeys: [String!]!) {
+        delete${this.tableName} (keys: $targetKeys) {
+          ${this.tablePK}
+        }
+      }`
     }
   },
   methods: {
     rawQuery: async function () {
       // prevent from illegal query
-      const tableName = this.$route.params.type[0].toUpperCase() + this.$route.params.type.substr(1)
       const regx = /(?<=from|join|FROM|JOIN)\s+(\w+)/g
       const queryTableName = this.querySentence.match(regx).map(target => target.replace(' ', ''))
       console.log(queryTableName)
       if (queryTableName.length > 1 || !queryTableName.includes(this.$route.params.type)) {
-        this.$message.error(`You are allowd to query with ${tableName} table ONLY!!`)
+        this.$message.error(`You are allowd to query with ${this.tableName} table ONLY!!`)
         return
       }
       if (!this.querySentence) {
@@ -298,38 +310,31 @@ export default {
         return
       }
       try {
-        const tableName = this.$route.params.type[0].toUpperCase() + this.$route.params.type.substr(1)
-        this.$apollo.mutate({
-          mutation: function () {
-            return gql`
-              mutation ($keys: [String!]!) {
-                delete${tableName}(keys: $keys)
-              }
-            `
-          },
+        await this.$apollo.mutate({
+          mutation: this.deleteExpression,
           variables: {
-            keys: [primaryKey]
+            targetKeys: [primaryKey]
           },
           update: function (store) {
-            const query = gql`query {
-              ${this.$route.params.type} {
-                ${this.tableColumns[this.$route.params.type].join(',', )}
-              }
-            }` 
             // get the data from query
-            const data = store.readQuery({ query: query })
+            const data = store.readQuery({
+              query: this.fetchExpression
+            })[this.$route.params.type]
+            // find the index of the data in apollo cache
             const index = data.findIndex(target => target[this.tablePK] === primaryKey)
-            data.splice(index, 1)
-            // write back to the cache
-            store.writeQuery({
-              query: query,
-              data: data
-            })
-          }
+            if (index > -1 && index < data.length) {
+              data.splice(index, 1)
+              // write back to the cache
+              store.writeQuery({
+                query: this.fetchExpression,
+                data: data
+              })
+            }
+          }.bind(this)
         })
-        this.$message.success(`SuccessFul delete primary key: ${primaryKey} record in ${tableName}`)
+        this.$message.success(`SuccessFul delete primary key: ${primaryKey} record in ${this.tableName}`)
       } catch (error) {
-        const msg = await error.text()
+        const msg = await error.message
         this.$message.error(msg)
         console.log(msg)
       }

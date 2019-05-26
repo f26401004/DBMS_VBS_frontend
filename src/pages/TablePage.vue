@@ -20,7 +20,7 @@
             el-alert(
               title="Description:"
               type="info"
-              description="You can input the formal SQL expression to query the database in your need."
+              description="You can input the formal SQL expression to query the database in your need. You are allowed to query all tables with complex query in the page!!"
             )
         el-row
           el-col( v-bind:span="24" )
