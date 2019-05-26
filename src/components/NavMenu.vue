@@ -9,13 +9,16 @@
         class="el-menu-vertical"
         background-color="#545c64"
         text-color="#fff"
-        active-text-color="#ffd04b" 
+        active-text-color="#ffd04b"
       )
+        el-menu-item( index="/table" ) 
+          template( slot="title" )
+            i( class="el-icon-menu" )
+            span All Table
         el-submenu( index="/submenu-table" )
           template( slot="title" )
             i( class="el-icon-document" )
-            span Table
-          el-menu-item( index="/table" ) All
+            span Tables
           el-menu-item( index="/table/users" ) Users
           el-menu-item( index="/table/cards" ) Cards
           el-menu-item( index="/table/cardTypes" ) CardTypes
@@ -37,6 +40,9 @@
 
 <script>
 export default {
+  mounted: function () {
+    console.log(this.$route)
+  }
 }
 </script>
 

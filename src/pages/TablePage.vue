@@ -93,7 +93,8 @@ export default {
             'Content-Type': 'application/json'
           }),
           body: JSON.stringify({
-            sentence: this.querySentence
+            sentence: this.querySentence,
+            permission: 2
           })
         })
         if (result.status !== 200) {

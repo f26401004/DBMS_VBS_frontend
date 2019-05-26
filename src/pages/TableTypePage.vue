@@ -13,9 +13,46 @@
       el-col( v-bind:span="24" )
         el-row( type="flex" align="middle" v-bind:gutter="16" )
           el-col( v-bind:span="0.5" )
+            i( class="el-icon-search" )
+          el-col( v-bind:span="23.5" )
+            h4 Search Attribute Section
+        el-row 
+          el-col( v-bind:span="24" )
+            el-alert(
+              title="Description:"
+              type="info"
+              v-bind:description="`You can select the attribute and input the keyword to query the database in your need. But you are ONLY allowed to query within ${$route.params.type.toUpperCase()} table!!`"
+            )
+        el-row( v-bind:gutter="24" )
+          el-col( v-bind:span="4" )
+            el-select(
+              placeholder="Select the attribute ..."
+              v-model="queryAttribute"
+              v-bind:clearable="true"
+            )
+              el-option(
+                v-for="(target, index) of tableColumns[$route.params.type]"
+                v-bind:key="`${$route.params.type}-search-select-option-${index}`"
+                v-bind:label="target"
+                v-bind:value="target"
+              )
+          el-col( v-bind:span="18" )
+            el-input(
+              placeholder="Please input the keyword here ..."
+              v-model="queryKeyword"
+              v-bind:clearable="true"
+            )
+          el-col( v-bind:span="2" )
+            el-button(
+              type="primary"
+              v-on:click="attributeQuery"
+            ) Search
+      el-col( v-bind:span="24" )
+        el-row( type="flex" align="middle" v-bind:gutter="16" )
+          el-col( v-bind:span="0.5" )
             i( class="el-icon-s-promotion" )
           el-col( v-bind:span="23.5" )
-            h4 Query Section
+            h4 Raw Query Section
         el-row 
           el-col( v-bind:span="24" )
             el-alert(
@@ -121,6 +158,8 @@ export default {
     return {
       showAddModal: false,
       querySentence: '',
+      queryAttribute: '',
+      queryKeyword: '',
       displayTableColumns: {
         users: [ 'username', 'authCode', 'SSN', 'assets', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
@@ -128,7 +167,7 @@ export default {
         transactions: [ 'id', 'user', 'target', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
-        insuranceTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         interestRates: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
@@ -140,8 +179,20 @@ export default {
         transactions: [ 'id', 'user', 'target', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
-        insuranceTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
+        depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        interestRates: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
+      },
+      tableQueryColumns: {
+        users: [ 'username', 'authCode', 'SSN', 'assets', 'permission', 'createdAt', 'updatedAt' ],
+        cards: [ 'cardNo', 'csc', 'type { id }', 'assets', 'owner', 'createdAt', 'updatedAt' ],
+        cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        transactions: [ 'id', 'user { username }', 'target { username }', 'type { id }', 'value', 'createdAt', 'updatedAt' ],
+        transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        insurances: [ 'id', 'user { username }', 'type { id }', 'term', 'paid', 'createdAt', 'updatedAt' ],
+        insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
+        deposits: [ 'id', 'user { username }', 'type { id }', 'term', 'paid', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         interestRates: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
@@ -151,11 +202,21 @@ export default {
   apollo: {
     tableData: {
       query: function () {
+        console.log(this.fetchExpression)
         return this.fetchExpression
       },
       update: function (data) {
-        console.log(data[this.$route.params.type])
-        return data[this.$route.params.type]
+        data = data[this.$route.params.type]
+        console.log(data)
+        // flatten the object value to one depth in order to display on the table
+        data.forEach(target => {
+          Object.keys(target).forEach(key => {
+            if (typeof target[key] === 'object') {
+              target[key] = Object.values(target[key])[0]
+            }
+          })
+        })
+        return data
       }
     }
   },
@@ -245,7 +306,7 @@ export default {
     fetchExpression: function () {
       return gql`query {
         ${this.$route.params.type} {
-          ${this.tableColumns[this.$route.params.type].join(',', )}
+          ${this.tableQueryColumns[this.$route.params.type].join(',', )}
         }
       }`
     },
@@ -258,12 +319,42 @@ export default {
     }
   },
   methods: {
+    attributeQuery: async function () {
+      if (this.queryAttribute.length === 0 || this.queryKeyword.length === 0) {
+        this.$message.error('You must give two condition (attribute and keyword) to execute search operation!!')
+        return
+      }
+      try {
+        const result = await fetch('http://localhost:3000/search', {
+          method: 'POST',
+          headers: new Headers({
+            'Content-Type': 'application/json'
+          }),
+          body: JSON.stringify({
+            attribute: this.queryAttribute,
+            keyword: this.queryKeyword,
+            tableName: this.tableName
+          })
+        })
+        if (result.status !== 200) {
+          throw result
+        }
+        this.tableData = await result.json()
+        const selectedColumns = Object.keys(this.tableData[0])
+        this.displayTableColumns[this.$route.params.type] = selectedColumns
+        this.$message.success('Successful operation!!')
+      } catch (error) {
+        const msg = await error.text()
+        this.$message.error(msg)
+        console.log(msg)
+      }
+    },
     rawQuery: async function () {
       // prevent from illegal query
       const regx = /(?<=from|join|FROM|JOIN)\s+(\w+)/g
       const queryTableName = this.querySentence.match(regx).map(target => target.replace(' ', ''))
       console.log(queryTableName)
-      if (queryTableName.length > 1 || !queryTableName.includes(this.$route.params.type)) {
+      if (queryTableName.length > 1 || !queryTableName.includes(this.tableName)) {
         this.$message.error(`You are allowd to query with ${this.tableName} table ONLY!!`)
         return
       }
@@ -277,7 +368,9 @@ export default {
             'Content-Type': 'application/json'
           }),
           body: JSON.stringify({
-            sentence: this.querySentence
+            sentence: this.querySentence,
+            permission: 1,
+            tableName: this.tableName
           })
         })
         if (result.status !== 200) {

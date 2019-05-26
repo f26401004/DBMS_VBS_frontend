@@ -1,24 +1,29 @@
 <template lang="pug">
   div( id="app" )
     el-header( class="vbs_header_container" )
-      h3 Virtual Bank v0.1
-      el-col(
-        class="vbs_header_info_container"
-        v-bind:xs="{ span: 12 }"
-        v-bind:sm="{ span: 9 }"
-        v-bind:md="{ span: 6 }"
-        v-bind:lg="{ span: 5 }"
-        v-bind:xl="{ span: 3 }"
-      )
-        i( class="el-icon-s-custom" )
-        label Hello, f26401004
-        router-link(
-          tag="i"
-          class="el-icon-s-home hover-button"
-          to="/"
+      el-row( type="flex" justify="flex-start" align="middle" )
+        el-col( v-bind:span="4" )
+          h3 Virtual Bank v0.1
+        el-col(
+          v-bind:span="20"
         )
-        i( class="el-icon-bell hover-button" )
-        i( class="el-icon-s-tools hover-button" )
+          el-row( type="flex" justify="end" align="middle" gutter="8" )
+            el-col( v-bind:span="3" )
+              el-row( type="flex" justify="center" gutter="8" )
+                el-col( v-bind:span=".5" )
+                  i( class="el-icon-s-custom" )
+                el-col( v-bind:span="23.5" )
+                  label Hello, f26401004
+            el-col( v-bind:span=".5" )
+              router-link(
+                tag="i"
+                class="el-icon-s-home hover-button"
+                to="/"
+              )
+            el-col( v-bind:span=".5" )
+              i( class="el-icon-bell hover-button" )
+            el-col( v-bind:span=".5" )
+              i( class="el-icon-s-tools hover-button" )
     el-container( class="vbs_main_container" )
       el-aside( width="256px" )
         nav-menu
@@ -41,7 +46,7 @@ export default {
 
 <style lang="scss">
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
