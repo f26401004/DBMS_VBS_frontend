@@ -22,6 +22,8 @@
               title="Description:"
               type="info"
               v-bind:description="`You can select the attribute and input the keyword to query the database in your need. But you are ONLY allowed to query within ${$route.params.type.toUpperCase()} table!!`"
+              show-icon
+              v-bind:closable="false"
             )
         el-row( v-bind:gutter="24" )
           el-col( v-bind:span="4" )
@@ -59,6 +61,8 @@
               title="Description:"
               type="info"
               v-bind:description="`You can input the formal SQL expression to query the database in your need. But you are ONLY allowed to query within ${$route.params.type.toUpperCase()} table!!`"
+              show-icon
+              v-bind:closable="false"
             )
         el-row
           el-col( v-bind:span="24" )
@@ -92,7 +96,7 @@
             el-button(
               type="primary"
               icon="el-icon-plus"
-              v-on:click="showAddModal = true"
+              v-on:click="displayModal"
             ) Add record
         el-row
           el-col( v-bind:span="24" )
@@ -100,6 +104,8 @@
               title="Description:"
               type="info"
               description="The query result will display in here. Also, you can add some data to the database with table operation."
+              show-icon
+              v-bind:closable="false"
             )
         el-row
           el-col( v-bind:span="24" )
@@ -126,10 +132,11 @@
                     type="text"
                     size="small"
                     icon="el-icon-edit"
+                    v-on:click="displayModal(tableData[scope.$index])"
                   ) Edit
     el-dialog(
       v-bind:title="`Add new record to ${$route.params.type.toUpperCase()} table`"
-      v-bind:visible.sync="showAddModal"
+      v-bind:visible.sync="showModal"
     )
       el-form
         el-form-item(
@@ -137,8 +144,8 @@
           v-bind:key="`${$route.params.type}-table-form-${index}`"
           v-bind:label="iter.name"
         )
-          el-input(v-if="iter.type === 'input'")
-          el-select(v-if="iter.type === 'select'")
+          el-input(v-if="iter.type === 'input'" v-model="currentInput[iter.name]")
+          el-select(v-if="iter.type === 'select'" v-model="currentInput[iter.name]")
             el-option(
               v-for="(target, idx) of iter.options"
               v-bind:key="`${$route.params.type}-table-form-select-option${idx}`"
@@ -146,8 +153,8 @@
               v-bind:value="iter.values[idx]"
             )
       span( slot="footer" )
-        el-button( v-on:click="showAddModal = false" ) Cancel
-        el-button( v-on:click="showAddModal = false" type="primary" ) Submit
+        el-button( v-on:click="showModal = false" ) Cancel
+        el-button( v-on:click="showModal = false" type="primary" ) Submit
 </template>
 
 <script>
@@ -156,10 +163,11 @@ import gql from 'graphql-tag'
 export default {
   data: function () {
     return {
-      showAddModal: false,
+      showModal: false,
       querySentence: '',
       queryAttribute: '',
       queryKeyword: '',
+      currentInput: {},
       displayTableColumns: {
         users: [ 'username', 'authCode', 'SSN', 'assets', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
@@ -253,7 +261,7 @@ export default {
       switch (this.$route.params.type) {
         case 'users':
           return [
-            { name: 'useranme', type: 'input' },
+            { name: 'username', type: 'input' },
             { name: 'authCode', type: 'input' },
             { name: 'SSN', type: 'input' },
             { name: 'assets', type: 'input' },
@@ -431,6 +439,17 @@ export default {
         this.$message.error(msg)
         console.log(msg)
       }
+    },
+    displayModal: function (data) {
+      if (data) {
+        this.currentInput = data
+      } else {
+        this.currentInput = {}
+        this.tableColumns[this.tableName].forEach(key => {
+          this.currentInput[key] = ''
+        })
+      }
+      this.showModal = true
     }
   }
 }

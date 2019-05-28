@@ -14,13 +14,15 @@
           el-col( v-bind:span="0.5" )
             i( class="el-icon-s-promotion" )
           el-col( v-bind:span="23.5" )
-            h4 Query Section
+            h4 Raw Query Section
         el-row 
           el-col( v-bind:span="24" )
             el-alert(
               title="Description:"
               type="info"
               description="You can input the formal SQL expression to query the database in your need. You are allowed to query all tables with complex query in the page!!"
+              show-icon
+              v-bind:closable="false"
             )
         el-row
           el-col( v-bind:span="24" )
@@ -50,6 +52,8 @@
               title="Description:"
               type="info"
               description="The query result will display in here. Also, you can add some data to the database with table operation."
+              show-icon
+              v-bind:closable="false"
             )
         el-row
           el-col( v-bind:span="24" )

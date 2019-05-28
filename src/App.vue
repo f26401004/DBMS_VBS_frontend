@@ -1,15 +1,15 @@
 <template lang="pug">
   div( id="app" )
     el-header( class="vbs_header_container" )
-      el-row( type="flex" justify="flex-start" align="middle" )
+      el-row( v-bind:style="{ width: '100%' }" type="flex" justify="flex-start" align="middle" )
         el-col( v-bind:span="4" )
-          h3 Virtual Bank v0.1
+          router-link( tag="h3" to="/" class="vbs_header_title" ) Virtual Bank v0.1
         el-col(
           v-bind:span="20"
         )
-          el-row( type="flex" justify="end" align="middle" gutter="8" )
+          el-row( type="flex" justify="end" align="middle"  v-bind:gutter="8" )
             el-col( v-bind:span="3" )
-              el-row( type="flex" justify="center" gutter="8" )
+              el-row( type="flex" justify="center" v-bind:gutter="8" )
                 el-col( v-bind:span=".5" )
                   i( class="el-icon-s-custom" )
                 el-col( v-bind:span="23.5" )
@@ -17,13 +17,13 @@
             el-col( v-bind:span=".5" )
               router-link(
                 tag="i"
-                class="el-icon-s-home hover-button"
+                class="el-icon-s-home vbs_hover_button"
                 to="/"
               )
             el-col( v-bind:span=".5" )
-              i( class="el-icon-bell hover-button" )
+              i( class="el-icon-bell vbs_hover_button" )
             el-col( v-bind:span=".5" )
-              i( class="el-icon-s-tools hover-button" )
+              i( class="el-icon-s-tools vbs_hover_button" )
     el-container( class="vbs_main_container" )
       el-aside( width="256px" )
         nav-menu
@@ -86,7 +86,7 @@ body {
   }
 }
 
-.hover-button[class^=el-icon-] {
+.vbs_hover_button[class^=el-icon-] {
   display: inline-flex;
   justify-content: center;
   justify-items: center;
@@ -106,6 +106,12 @@ body {
   }
   &:hover {
     background-color: darken(white, 50%);
+  }
+}
+.vbs_header_title {
+  cursor: pointer;
+  &:hover {
+    color: darken(white, 20%);
   }
 }
 </style>

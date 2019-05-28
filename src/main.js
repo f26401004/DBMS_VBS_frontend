@@ -1,9 +1,11 @@
 import Vue from 'vue'
-import router from './routes/index.js'
-import App from './App.vue'
-import './plugins/element.js'
-import apolloProvider from './plugins/vue-apollo.js'
+import App from '@/App.vue'
+import router from '@/routes/index.js'
+import apolloProvider from '@/plugins/vue-apollo.js'
 import 'normalize.css'
+import '@/plugins/element.js'
+import '@/plugins/v-charts.js'
+
 
 Vue.config.productionTip = false
 

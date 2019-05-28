@@ -1,12 +1,12 @@
 <template lang="pug">
-  el-row( class="tac" )
+  el-row( class="vbs_tac" )
     el-col(
-      class="tac"
+      class="vbs_tac"
       v-bind:span="24"
     )
       el-menu(
         v-bind:router="true"
-        class="el-menu-vertical"
+        class="vbs_menu_vertical"
         background-color="#545c64"
         text-color="#fff"
         active-text-color="#ffd04b"
@@ -47,10 +47,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .tac {
+  .vbs_tac {
     height: 100%;
   }
-  .el-menu-vertical {
+  .vbs_menu_vertical {
     height: 100%;
   }
 </style>
