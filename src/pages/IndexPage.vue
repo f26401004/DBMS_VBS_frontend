@@ -6,15 +6,15 @@
           el-col( v-bind:span="24" )
             el-row( type="flex" justify="start" align="middle" v-bind:gutter="16" )
               el-col( v-bind:span="0.5" )
-                i( class="el-icon-money" )
+                i( class="el-icon-s-marketing" )
               el-col( v-bind:span="23.5" )
-                h3 Exchange Rate
+                h3 Exchange Rates
         el-row
           el-col( v-bind:span="24" )
             el-alert(
-              title="info alert"
+              title="info"
               type="info"
-              description="Here display the recent year of, the 1st of each month of exchange rate."
+              description="Here display the recent year of, the 1st of each month of exchange rate and current exchange rate."
               show-icon
               v-bind:closable="false"
             )
@@ -37,6 +37,61 @@
                 el-tag USD to EUR
               el-col( v-bind:span="24" )
                 ve-line( v-bind:data="exchangeEURData" v-bind:extend="exchangeRatioExtends" )
+        el-row
+          el-divider
+        el-row
+          el-col( v-bind:span="24" )
+            el-row
+              el-col( v-bind:span="22" )
+                el-tag Current Exchange Rates
+              el-col( v-bind:span="2" )
+                el-link( herf="https://rate.bot.com.tw/xrt?Lang=zh-TW" ) See More
+            el-row( v-bind:gutter="16" )
+              el-col( v-bind:span="8" )
+                el-card( shadow="hover" )
+                  div( slot="header" ) USD TO TWD
+                  div {{ currentExchangeData.USDTWD }}
+              el-col( v-bind:span="8" )
+                el-card( shadow="hover" )
+                  div( slot="header" ) USD TO EUR
+                  div {{ currentExchangeData.USDEUR }}
+              el-col( v-bind:span="8" )
+                el-card( shadow="hover" )
+                  div( slot="header" ) USD TO JPY
+                  div {{ currentExchangeData.USDJPY }}
+            el-row( v-bind:gutter="16" )
+              el-col( v-bind:span="8" )
+                el-card( shadow="hover" )
+                  div( slot="header" ) USD TO GBP
+                  div {{ currentExchangeData.USDGBP }}
+              el-col( v-bind:span="8" )
+                el-card( shadow="hover" )
+                  div( slot="header" ) USD TO CAD
+                  div {{ currentExchangeData.USDCAD }}
+              el-col( v-bind:span="8" )
+                el-card( shadow="hover" )
+                  div( slot="header" ) USD TO SGD
+                  div {{ currentExchangeData.USDSGD }}
+      el-col( v-bind:span="24" )
+        el-row
+          el-col( v-bind:span="24" )
+            el-row( type="flex" justify="start" align="middle" v-bind:gutter="16" )
+              el-col( v-bind:span="0.5" )
+                i( class="el-icon-money" )
+              el-col( v-bind:span="23.5" )
+                h3 Recent Transactions
+        el-row
+          el-col( v-bind:span="24" )
+            el-alert(
+              title="info"
+              type="info"
+              description="Here display all transactions in recent two month."
+              show-icon
+              v-bind:closable="false"
+            )
+        el-row
+          el-col( v-bind:span="24" )
+            ve-histogram( v-bind:data="transactionData" )
 
 </template>
 
@@ -66,7 +121,13 @@ export default {
       exchangeEURData: {
         columns: ['timestamp', 'value'],
         rows: []
-      }
+      },
+      currentExchangeData: [],
+      transactionData: {
+        columns: ['timestamp', 'value'],
+        rows: []
+      },
+      tables: ['Users', 'Cards', 'CardTypes', 'Transactions', 'TransactionTypes', 'Insruances', 'InsuranceTypes', 'Deposits', 'DepositTypes', 'InterestRates']
     }
   },
   mounted: async function () {
@@ -79,7 +140,6 @@ export default {
         const dateString = `${date.getFullYear()}-${date.getMonth() + 1 > 9 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1) }-${date.getDate() > 9 ? date.getDate() : '0' + (date.getDate())}`
         const request = await fetch(`http://apilayer.net/api/historical?date=${dateString}&access_key=${key}`)
         const result = await request.json()
-        console.log(result)
         this.exchangeTWDData.rows.push({
           timestamp: dateString,
           value: result.quotes.USDTWD.toFixed(2)
@@ -94,6 +154,35 @@ export default {
         })
         date.setMonth(date.getMonth() + 1)
       }
+      // fetch for all current exchange rate based on USD
+      let request = await fetch(`http://apilayer.net/api/live?currencies=JPY,EUR,GBP,CAD,SGD,TWD&access_key=${key}`)
+      let result = await request.json()
+      console.log(result)
+      this.currentExchangeData = result.quotes
+      // fetch for transaction amount
+      const currentDate = new Date()
+      currentDate.setMonth(currentDate.getMonth() - 2)
+      let sentence = `SELECT value, createdAt FROM Transactions WHERE createdAt BETWEEN '${currentDate.getFullYear()}-${currentDate.getMonth() + 1 > 9 ? currentDate.getMonth() + 1 : '0' + (currentDate.getMonth() + 1)}-${currentDate.getDate() > 9 ? currentDate.getDate() : '0' + currentDate.getDate()} 00:00:00'`
+      currentDate.setMonth(currentDate.getMonth() + 2)
+      sentence = `${sentence} AND '${currentDate.getFullYear()}-${currentDate.getMonth() + 1 > 9 ? currentDate.getMonth() + 1 : '0' + (currentDate.getMonth() + 1)}-${currentDate.getDate() > 9 ? currentDate.getDate() : '0' + currentDate.getDate()} 23:59:59'`
+      request = await fetch('http://localhost:3000/raw-sql', {
+        method: 'POST',
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify({
+          sentence: sentence,
+          permission: 1,
+          tableName: 'Transactions'
+        })
+      })
+      result = await request.json()
+      this.transactionData.rows = result.map(target => {
+        return {
+          value: target.value,
+          timestamp: target.createdAt
+        }
+      })
     } catch (error) {
       console.log(error)
     }

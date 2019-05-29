@@ -135,7 +135,7 @@
                     v-on:click="displayModal(tableData[scope.$index])"
                   ) Edit
     el-dialog(
-      v-bind:title="`Add new record to ${$route.params.type.toUpperCase()} table`"
+      v-bind:title="Object.values(currentInput)[0].length > 0 ? `Modify record`: `Add new record to ${$route.params.type.toUpperCase()} table`"
       v-bind:visible.sync="showModal"
     )
       el-form
@@ -169,7 +169,7 @@ export default {
       queryKeyword: '',
       currentInput: {},
       displayTableColumns: {
-        users: [ 'username', 'authCode', 'SSN', 'assets', 'permission', 'createdAt', 'updatedAt' ],
+        users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'user', 'target', 'type', 'value', 'createdAt', 'updatedAt' ],
@@ -181,7 +181,7 @@ export default {
         interestRates: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
       tableColumns: {
-        users: [ 'username', 'authCode', 'SSN', 'assets', 'permission', 'createdAt', 'updatedAt' ],
+        users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'user', 'target', 'type', 'value', 'createdAt', 'updatedAt' ],
@@ -193,7 +193,7 @@ export default {
         interestRates: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
       tableQueryColumns: {
-        users: [ 'username', 'authCode', 'SSN', 'assets', 'permission', 'createdAt', 'updatedAt' ],
+        users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type { id }', 'assets', 'owner', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'user { username }', 'target { username }', 'type { id }', 'value', 'createdAt', 'updatedAt' ],
@@ -264,7 +264,6 @@ export default {
             { name: 'username', type: 'input' },
             { name: 'authCode', type: 'input' },
             { name: 'SSN', type: 'input' },
-            { name: 'assets', type: 'input' },
             { name: 'permission', type: 'select', options: ['Admin', 'General'], values: [0, 1] }
           ]
         case 'cards':

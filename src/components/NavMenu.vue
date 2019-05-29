@@ -29,12 +29,6 @@
           el-menu-item( index="/table/deposits" ) Deposits
           el-menu-item( index="/table/depositTypes" ) DepositTypes
           el-menu-item( index="/table/interestRates" ) InterestRates
-        el-menu-item( index="/admin" )
-          i( class="el-icon-location" )
-          span( slot="title" ) Admin
-        el-menu-item( index="/client" )
-          i( class="el-icon-location" )
-          span( slot="title" ) client
 
 </template>
 

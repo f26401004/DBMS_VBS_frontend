@@ -89,7 +89,6 @@ export default {
       } else {
         this.currentTable = queryTableName[0][0].toLowerCase() + queryTableName[0].substr(1)
       }
-      console.log(this.currentTable)
       try {
         const result = await fetch('http://localhost:3000/raw-sql', {
           method: 'POST',
