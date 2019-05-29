@@ -103,7 +103,7 @@
             el-alert(
               title="Description:"
               type="info"
-              description="The query result will display in here. Also, you can add some data to the database with table operation."
+              v-bind:description="`The query result will display in here. ${$route.params.type === 'transactions' ? 'However, you are not allowed to insert/update/destroy any data with general permission' : 'Also, you can insert/update/destroy some data to the database.'}`"
               show-icon
               v-bind:closable="false"
             )
@@ -120,6 +120,7 @@
                 fixed="right"
                 label="Operation"
                 width="120"
+                v-if="$route.params.type !== 'transactions'"
               )
                 template( slot-scope="scope" )
                   el-button(
@@ -132,10 +133,10 @@
                     type="text"
                     size="small"
                     icon="el-icon-edit"
-                    v-on:click="displayModal(tableData[scope.$index])"
+                    v-on:click="displayModal(scope.$index, tableData[scope.$index])"
                   ) Edit
     el-dialog(
-      v-bind:title="Object.values(currentInput)[0].length > 0 ? `Modify record`: `Add new record to ${$route.params.type.toUpperCase()} table`"
+      v-bind:title="modalMode === 'insert' ? `Add new record to ${$route.params.type.toUpperCase()} table` : `Modify record`"
       v-bind:visible.sync="showModal"
     )
       el-form
@@ -145,7 +146,15 @@
           v-bind:label="iter.name"
         )
           el-input(v-if="iter.type === 'input'" v-model="currentInput[iter.name]")
+          el-input(v-if="iter.type === 'input-number'" type="number" v-model.number="currentInput[iter.name]")
           el-select(v-if="iter.type === 'select'" v-model="currentInput[iter.name]")
+            el-option(
+              v-for="(target, idx) of iter.options"
+              v-bind:key="`${$route.params.type}-table-form-select-option${idx}`"
+              v-bind:label="target"
+              v-bind:value="iter.values[idx]"
+            )
+          el-select(v-if="iter.type === 'select-number'" v-model.number="currentInput[iter.name]")
             el-option(
               v-for="(target, idx) of iter.options"
               v-bind:key="`${$route.params.type}-table-form-select-option${idx}`"
@@ -154,7 +163,7 @@
             )
       span( slot="footer" )
         el-button( v-on:click="showModal = false" ) Cancel
-        el-button( v-on:click="showModal = false" type="primary" ) Submit
+        el-button( v-on:click="modalMode === 'insert' ? addOperation() : editOperation()" type="primary" ) Submit
 </template>
 
 <script>
@@ -167,12 +176,14 @@ export default {
       querySentence: '',
       queryAttribute: '',
       queryKeyword: '',
-      currentInput: {},
+      modalMode: 'insert',
+      currentInput: { init: '' },
+      currentIndex: -1,
       displayTableColumns: {
         users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        transactions: [ 'id', 'user', 'target', 'type', 'value', 'createdAt', 'updatedAt' ],
+        transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
@@ -184,7 +195,7 @@ export default {
         users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        transactions: [ 'id', 'user', 'target', 'type', 'value', 'createdAt', 'updatedAt' ],
+        transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
@@ -194,9 +205,9 @@ export default {
       },
       tableQueryColumns: {
         users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
-        cards: [ 'cardNo', 'csc', 'type { id }', 'assets', 'owner', 'createdAt', 'updatedAt' ],
+        cards: [ 'cardNo', 'csc', 'type { id }', 'assets', 'owner { username }', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        transactions: [ 'id', 'user { username }', 'target { username }', 'type { id }', 'value', 'createdAt', 'updatedAt' ],
+        transactions: [ 'id', 'userCard { cardNo }', 'targetCard { cardNo }', 'type { id }', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user { username }', 'type { id }', 'term', 'paid', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
@@ -210,12 +221,10 @@ export default {
   apollo: {
     tableData: {
       query: function () {
-        console.log(this.fetchExpression)
         return this.fetchExpression
       },
       update: function (data) {
         data = data[this.$route.params.type]
-        console.log(data)
         // flatten the object value to one depth in order to display on the table
         data.forEach(target => {
           Object.keys(target).forEach(key => {
@@ -261,51 +270,58 @@ export default {
       switch (this.$route.params.type) {
         case 'users':
           return [
-            { name: 'username', type: 'input' },
-            { name: 'authCode', type: 'input' },
-            { name: 'SSN', type: 'input' },
-            { name: 'permission', type: 'select', options: ['Admin', 'General'], values: [0, 1] }
+            { name: 'username', type: 'input', datatype: 'String!' },
+            { name: 'authCode', type: 'input', datatype: 'String!' },
+            { name: 'SSN', type: 'input', datatype: 'String!' },
+            { name: 'permission', type: 'select', options: ['General', 'Admin'], values: [0, 1], datatype: 'Int!' }
           ]
         case 'cards':
           return [
-            { name: 'cardNo', type: 'input' },
-            { name: 'csc', type: 'input' },
-            { name: 'type', type: 'select', options: ['晶片金融卡', 'VISA 金融卡'], values: [1, 2] },
-            { name: 'assets', type: 'input' },
-            { name: 'owner', type: 'input' }
+            { name: 'cardNo', type: 'input', datatype: 'String!' },
+            { name: 'csc', type: 'input', datatype: 'String!' },
+            { name: 'type', type: 'select-number', options: ['晶片金融卡', 'VISA 金融卡'], values: [1, 2], datatype: 'Int!' },
+            { name: 'assets', type: 'input-number', datatype: 'Float!' },
+            { name: 'owner', type: 'input', datatype: 'String!' }
           ]
         case 'cardTypes':
           return [
-            { name: 'name', type: 'input' }
+            { name: 'id', type: 'input-number', datatype: 'Int!' },
+            { name: 'name', type: 'input', datatype: 'String!' }
           ]
         case 'transactionTypes':
           return [
-            { name: 'name', type: 'input' }
+            { name: 'id', type: 'input-number', datatype: 'Int!' },
+            { name: 'name', type: 'input', datatype: 'String!' }
           ]
         case 'insurances':
           return [
-            { name: 'user', type: 'input' },
-            { name: 'type', type: 'select', options: [], values: [] },
-            { name: 'term', type: 'input' }
+            { name: 'id', type: 'input', datatype: 'String!' },
+            { name: 'user', type: 'input', datatype: 'String!' },
+            { name: 'type', type: 'select', options: [], values: [], datatype: 'Int!' },
+            { name: 'term', type: 'input-number', datatype: 'Int!' }
           ]
         case 'insuranceTypes':
           return [
-            { name: 'name', type: 'input' }
+            { name: 'id', type: 'input-number', datatype: 'Int!' },
+            { name: 'name', type: 'input', datatype: 'String!' }
           ]
         case 'deposits':
           return [
-            { name: 'user', type: 'input' },
-            { name: 'type', type: 'select', options: [], values: [] },
-            { name: 'term', type: 'input' }
+            { name: 'id', type: 'input-number', datatype: 'String!' },
+            { name: 'user', type: 'input', datatype: 'String!' },
+            { name: 'type', type: 'select', options: [], values: [], datatype: 'Int!' },
+            { name: 'term', type: 'input-number', datatype: 'Int!' }
           ]
         case 'depositTypes':
           return [
-            { name: 'name', type: 'input' }
+            { name: 'id', type: 'input-number', datatype: 'Int!' },
+            { name: 'name', type: 'input', datatype: 'String!' }
           ]
         case 'interestRates':
           return [
-            { name: 'name', type: 'input' },
-            { name: 'value', type: 'input' }
+            { name: 'id', type: 'input-number', datatype: 'Int!' },
+            { name: 'name', type: 'input', datatype: 'String!' },
+            { name: 'value', type: 'input-number', datatype: 'Float!' }
           ]
       }
       return []
@@ -326,6 +342,19 @@ export default {
     }
   },
   methods: {
+    updateExpression: function (params) {
+      let parameterString = ''
+      let argumentString = ''
+      Object.keys(params).forEach(key => {
+        parameterString += `, $${key}: ${params[key]}`
+        argumentString += `, ${key}: $${key}`
+      })
+      return gql`mutation ($targetKey: ${params[this.tablePK]}${parameterString}) {
+        update${this.tableName} (key: $targetKey${argumentString}) {
+          ${this.tablePK}
+        }
+      }`
+    },
     attributeQuery: async function () {
       if (this.queryAttribute.length === 0 || this.queryKeyword.length === 0) {
         this.$message.error('You must give two condition (attribute and keyword) to execute search operation!!')
@@ -346,7 +375,7 @@ export default {
         if (result.status !== 200) {
           throw result
         }
-        this.tableData = await result.json()
+        this.tableData = JSON.parse(await result.text())
         const selectedColumns = Object.keys(this.tableData[0])
         this.displayTableColumns[this.$route.params.type] = selectedColumns
         this.$message.success('Successful operation!!')
@@ -385,7 +414,7 @@ export default {
         }
         // if the operation is select operation
         if (this.querySentence.toLowerCase().indexOf('select') > -1) {
-          this.tableData = await result.json()
+          this.tableData = JSON.parse(await result.text())
           const selectedColumns = Object.keys(this.tableData[0])
           this.displayTableColumns[this.$route.params.type] = selectedColumns
         }
@@ -396,6 +425,7 @@ export default {
         console.log(msg)
       }
     },
+    addOperation: async function () {},
     deleteOperation: async function (index) {
       // get the record primary key
       const primaryKey = this.tableData[index][this.tablePK]
@@ -439,14 +469,64 @@ export default {
         console.log(msg)
       }
     },
-    displayModal: function (data) {
-      if (data) {
-        this.currentInput = data
+    editOperation: async function () {
+      // get the record primary key
+      const primaryKey = this.tableData[this.currentIndex][this.tablePK]
+      // get the params
+      const params = {}
+      Object.values(this.formColumns).forEach(target => {
+        params[target.name] = target.datatype
+      })
+      console.log(this.updateExpression(params))
+      console.log(Object.assign({
+            targetKey: primaryKey
+          }, this.currentInput))
+      try {
+        await this.$apollo.mutate({
+          mutation: this.updateExpression(params),
+          variables: Object.assign({
+            targetKey: primaryKey
+          }, this.currentInput),
+          update: function (store) {
+            // get the data from query
+            const data = store.readQuery({
+              query: this.fetchExpression
+            })[this.$route.params.type]
+            // find the index of the data in apollo cache
+            const index = data.findIndex(target => target[this.tablePK] === primaryKey)
+            if (index > -1 && index < data.length) {
+              Object.keys(data[index]).forEach(key => {
+                if (data[index][key] !== this.currentInput[key]) {
+                  data[index][key] = this.currentInput[key]
+                }
+              })
+              // write back to the cache
+              store.writeQuery({
+                query: this.fetchExpression,
+                data: data
+              })
+            }
+          }.bind(this)
+        })
+        this.$message.success(`SuccessFul delete primary key: ${primaryKey} record in ${this.tableName}`)
+        this.showModal = false
+      } catch (error) {
+        const msg = await error.message
+        this.$message.error(msg)
+        console.log(msg)
+      }
+    },
+    displayModal: function (index, data) {
+      if (index !== undefined) {
+        this.currentInput = Object.assign({}, data)
+        this.currentIndex = index
+        this.modalMode = 'update'
       } else {
         this.currentInput = {}
         this.tableColumns[this.tableName].forEach(key => {
           this.currentInput[key] = ''
         })
+        this.modalMode = 'insert'
       }
       this.showModal = true
     }

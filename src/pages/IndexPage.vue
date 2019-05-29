@@ -41,11 +41,11 @@
           el-divider
         el-row
           el-col( v-bind:span="24" )
-            el-row
+            el-row( type="flex" justify="start" align="middle" )
               el-col( v-bind:span="22" )
                 el-tag Current Exchange Rates
               el-col( v-bind:span="2" )
-                el-link( herf="https://rate.bot.com.tw/xrt?Lang=zh-TW" ) See More
+                el-link( href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank" ) See More
             el-row( v-bind:gutter="16" )
               el-col( v-bind:span="8" )
                 el-card( shadow="hover" )
@@ -182,7 +182,7 @@ export default {
           value: target.value,
           timestamp: target.createdAt
         }
-      })
+      }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
     } catch (error) {
       console.log(error)
     }

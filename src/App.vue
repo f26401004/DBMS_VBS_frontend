@@ -27,7 +27,8 @@
     el-container( class="vbs_main_container" )
       el-aside( width="256px" )
         nav-menu
-      router-view
+      el-scrollbar( wrapClass="vbs_scrollbar_wrap_container" )
+        router-view
 </template>
 
 <script>
@@ -37,9 +38,6 @@ export default {
   name: 'app',
   components: {
     NavMenu
-  },
-  mounted: function () {
-    console.log(this.$route)
   }
 }
 </script>
@@ -113,5 +111,8 @@ body {
   &:hover {
     color: darken(white, 20%);
   }
+}
+.vbs_scrollbar_wrap_container {
+  overflow: auto !important;
 }
 </style>
