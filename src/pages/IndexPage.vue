@@ -91,7 +91,7 @@
             )
         el-row
           el-col( v-bind:span="24" )
-            ve-histogram( v-bind:data="transactionData" )
+            ve-histogram( v-bind:data="transactionData" v-bind:extend="exchangeRatioExtends" )
 
 </template>
 
@@ -162,7 +162,7 @@ export default {
       // fetch for transaction amount
       const currentDate = new Date()
       currentDate.setMonth(currentDate.getMonth() - 2)
-      let sentence = `SELECT value, createdAt FROM Transactions WHERE createdAt BETWEEN '${currentDate.getFullYear()}-${currentDate.getMonth() + 1 > 9 ? currentDate.getMonth() + 1 : '0' + (currentDate.getMonth() + 1)}-${currentDate.getDate() > 9 ? currentDate.getDate() : '0' + currentDate.getDate()} 00:00:00'`
+      let sentence = `SELECT value, createdAt, type FROM Transactions WHERE createdAt BETWEEN '${currentDate.getFullYear()}-${currentDate.getMonth() + 1 > 9 ? currentDate.getMonth() + 1 : '0' + (currentDate.getMonth() + 1)}-${currentDate.getDate() > 9 ? currentDate.getDate() : '0' + currentDate.getDate()} 00:00:00'`
       currentDate.setMonth(currentDate.getMonth() + 2)
       sentence = `${sentence} AND '${currentDate.getFullYear()}-${currentDate.getMonth() + 1 > 9 ? currentDate.getMonth() + 1 : '0' + (currentDate.getMonth() + 1)}-${currentDate.getDate() > 9 ? currentDate.getDate() : '0' + currentDate.getDate()} 23:59:59'`
       request = await fetch('http://localhost:3000/raw-sql', {
@@ -177,7 +177,7 @@ export default {
         })
       })
       result = await request.json()
-      this.transactionData.rows = result.map(target => {
+      this.transactionData.rows = result.filter(target => target.type < 11).map(target => {
         return {
           value: target.value,
           timestamp: target.createdAt

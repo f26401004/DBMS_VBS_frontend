@@ -80,7 +80,7 @@
         el-divider
       el-col( v-bind:span="24" )
         el-row( type="flex" align="middle" )
-          el-col( v-bind:span="20" )
+          el-col( v-bind:span="$route.params.type === 'transactions' ? 22 : 20" )
             el-row( type="flex" align="middle" v-bind:gutter="16" )
               el-col( v-bind:span="0.5" )
                 i( class="el-icon-receiving" )
@@ -92,11 +92,11 @@
               icon="el-icon-search"
               v-on:click=""
             ) Fetch
-          el-col( v-bind:span="2" )
+          el-col( v-if="$route.params.type !== 'transactions'" v-bind:span="2" )
             el-button(
               type="primary"
               icon="el-icon-plus"
-              v-on:click="displayModal"
+              v-on:click="displayModal()"
             ) Add record
         el-row
           el-col( v-bind:span="24" )
@@ -146,6 +146,7 @@
           v-bind:label="iter.name"
         )
           el-input(v-if="iter.type === 'input'" v-model="currentInput[iter.name]")
+          el-input(v-if="iter.type === 'input-password'" type="password" v-model="currentInput[iter.name]")
           el-input(v-if="iter.type === 'input-number'" type="number" v-model.number="currentInput[iter.name]")
           el-select(v-if="iter.type === 'select'" v-model="currentInput[iter.name]")
             el-option(
@@ -163,7 +164,11 @@
             )
       span( slot="footer" )
         el-button( v-on:click="showModal = false" ) Cancel
-        el-button( v-on:click="modalMode === 'insert' ? addOperation() : editOperation()" type="primary" ) Submit
+        el-button( v-on:click="modalMode === 'insert' ? addOperation() : editOperation()" type="primary" )
+          span( v-show="!loading" ) Submit
+          span( v-show="loading" )
+            i( class="el-icon-loading" )
+
 </template>
 
 <script>
@@ -173,6 +178,7 @@ export default {
   data: function () {
     return {
       showModal: false,
+      loading: false,
       querySentence: '',
       queryAttribute: '',
       queryKeyword: '',
@@ -269,7 +275,12 @@ export default {
     formColumns: function () {
       switch (this.$route.params.type) {
         case 'users':
-          return [
+          return this.modalMode === 'insert' ? [
+            { name: 'username', type: 'input', datatype: 'String!' },
+            { name: 'password', type: 'input-password', datatype: 'String!' },
+            { name: 'SSN', type: 'input', datatype: 'String!' },
+            { name: 'permission', type: 'select', options: ['General', 'Admin'], values: [0, 1], datatype: 'Int!' }
+          ] : [
             { name: 'username', type: 'input', datatype: 'String!' },
             { name: 'authCode', type: 'input', datatype: 'String!' },
             { name: 'SSN', type: 'input', datatype: 'String!' },
@@ -303,7 +314,8 @@ export default {
         case 'insuranceTypes':
           return [
             { name: 'id', type: 'input-number', datatype: 'Int!' },
-            { name: 'name', type: 'input', datatype: 'String!' }
+            { name: 'name', type: 'input', datatype: 'String!' },
+            { name: 'interest_rate', type: 'input-number', datatype: 'Float!' }
           ]
         case 'deposits':
           return [
@@ -342,6 +354,24 @@ export default {
     }
   },
   methods: {
+    addExpression: function (params) {
+      let parameterString = ''
+      let argumentString = ''
+      for (let [index, key] of Object.keys(params).entries()) {
+        if (index === 0) {
+          parameterString += `$${key}: ${params[key]}`
+          argumentString += `${key}: $${key}`
+        } else {
+          parameterString += `, $${key}: ${params[key]}`
+          argumentString += `, ${key}: $${key}`
+        }
+      }
+      return gql`mutation (${parameterString}) {
+        insert${this.tableName} (${argumentString}) {
+          ${this.tableQueryColumns[this.$route.params.type].join(',', )}
+        }
+      }`
+    },
     updateExpression: function (params) {
       let parameterString = ''
       let argumentString = ''
@@ -361,6 +391,7 @@ export default {
         return
       }
       try {
+        this.loading = true
         const result = await fetch('http://localhost:3000/search', {
           method: 'POST',
           headers: new Headers({
@@ -379,13 +410,16 @@ export default {
         const selectedColumns = Object.keys(this.tableData[0])
         this.displayTableColumns[this.$route.params.type] = selectedColumns
         this.$message.success('Successful operation!!')
+        this.loading = false
       } catch (error) {
+        this.loading = false
         const msg = await error.text()
         this.$message.error(msg)
         console.log(msg)
       }
     },
     rawQuery: async function () {
+      this.loading = true
       // prevent from illegal query
       const regx = /(?<=from|join|FROM|JOIN)\s+(\w+)/g
       const queryTableName = this.querySentence.match(regx).map(target => target.replace(' ', ''))
@@ -405,7 +439,7 @@ export default {
           }),
           body: JSON.stringify({
             sentence: this.querySentence,
-            permission: 1,
+            permission: 2,
             tableName: this.tableName
           })
         })
@@ -419,14 +453,51 @@ export default {
           this.displayTableColumns[this.$route.params.type] = selectedColumns
         }
         this.$message.success('Successful operation!!')
+        this.loading = false
       } catch (error) {
+        this.loading = false
         const msg = await error.text()
         this.$message.error(msg)
         console.log(msg)
       }
     },
-    addOperation: async function () {},
+    addOperation: async function () {
+      this.loading = true
+      // get the params
+      const params = {}
+      Object.values(this.formColumns).forEach(target => {
+        params[target.name] = target.datatype
+      })
+      console.log(this.addExpression(params))
+      try {
+        await this.$apollo.mutate({
+          mutation: this.addExpression(params),
+          variables: this.currentInput,
+          update: function (store, { data }) {
+            // get the data from query
+            const cache = store.readQuery({
+              query: this.fetchExpression
+            })[this.$route.params.type]
+            const target = data[`insert${this.tableName}`]
+            cache.push(target)
+            // write back to the cache
+            store.writeQuery({
+              query: this.fetchExpression,
+              data: cache
+            })
+          }.bind(this)
+        })
+        this.showModal = false
+        this.loading = false
+      } catch (error) {
+        this.loading = false
+        const msg = await error.message
+        this.$message.error(msg)
+        console.log(msg)
+      }
+    },
     deleteOperation: async function (index) {
+      this.loading = true
       // get the record primary key
       const primaryKey = this.tableData[index][this.tablePK]
       // confirm the operation
@@ -447,29 +518,33 @@ export default {
           },
           update: function (store) {
             // get the data from query
-            const data = store.readQuery({
+            const cache = store.readQuery({
               query: this.fetchExpression
             })[this.$route.params.type]
             // find the index of the data in apollo cache
-            const index = data.findIndex(target => target[this.tablePK] === primaryKey)
-            if (index > -1 && index < data.length) {
-              data.splice(index, 1)
+            const index = cache.findIndex(target => target[this.tablePK] === primaryKey)
+            if (index > -1 && index < cache.length) {
+              cache.splice(index, 1)
               // write back to the cache
               store.writeQuery({
                 query: this.fetchExpression,
-                data: data
+                data: cache
               })
             }
           }.bind(this)
         })
         this.$message.success(`SuccessFul delete primary key: ${primaryKey} record in ${this.tableName}`)
+        this.showModal = false
+        this.loading = false
       } catch (error) {
+        this.loading = false
         const msg = await error.message
         this.$message.error(msg)
         console.log(msg)
       }
     },
     editOperation: async function () {
+      this.loading = true
       // get the record primary key
       const primaryKey = this.tableData[this.currentIndex][this.tablePK]
       // get the params
@@ -477,10 +552,6 @@ export default {
       Object.values(this.formColumns).forEach(target => {
         params[target.name] = target.datatype
       })
-      console.log(this.updateExpression(params))
-      console.log(Object.assign({
-            targetKey: primaryKey
-          }, this.currentInput))
       try {
         await this.$apollo.mutate({
           mutation: this.updateExpression(params),
@@ -489,28 +560,30 @@ export default {
           }, this.currentInput),
           update: function (store) {
             // get the data from query
-            const data = store.readQuery({
+            const cache = store.readQuery({
               query: this.fetchExpression
             })[this.$route.params.type]
             // find the index of the data in apollo cache
-            const index = data.findIndex(target => target[this.tablePK] === primaryKey)
-            if (index > -1 && index < data.length) {
-              Object.keys(data[index]).forEach(key => {
-                if (data[index][key] !== this.currentInput[key]) {
-                  data[index][key] = this.currentInput[key]
+            const index = cache.findIndex(target => target[this.tablePK] === primaryKey)
+            if (index > -1 && index < cache.length) {
+              Object.keys(cache[index]).forEach(key => {
+                if (cache[index][key] !== this.currentInput[key]) {
+                  cache[index][key] = this.currentInput[key]
                 }
               })
               // write back to the cache
               store.writeQuery({
                 query: this.fetchExpression,
-                data: data
+                data: cache
               })
             }
           }.bind(this)
         })
         this.$message.success(`SuccessFul delete primary key: ${primaryKey} record in ${this.tableName}`)
         this.showModal = false
+        this.loading = false
       } catch (error) {
+        this.loading = false
         const msg = await error.message
         this.$message.error(msg)
         console.log(msg)
@@ -522,10 +595,11 @@ export default {
         this.currentIndex = index
         this.modalMode = 'update'
       } else {
-        this.currentInput = {}
-        this.tableColumns[this.tableName].forEach(key => {
-          this.currentInput[key] = ''
+        const temp = {}
+        this.formColumns.forEach(key => {
+          temp[key.name] = ''
         })
+        this.currentInput = Object.assign({}, temp)
         this.modalMode = 'insert'
       }
       this.showModal = true
