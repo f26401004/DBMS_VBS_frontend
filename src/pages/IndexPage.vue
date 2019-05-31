@@ -127,7 +127,7 @@ export default {
         columns: ['timestamp', 'value'],
         rows: []
       },
-      tables: ['Users', 'Cards', 'CardTypes', 'Transactions', 'TransactionTypes', 'Insruances', 'InsuranceTypes', 'Deposits', 'DepositTypes', 'InterestRates']
+      tables: ['Users', 'Cards', 'CardTypes', 'Transactions', 'TransactionTypes', 'Insruances', 'InsuranceTypes', 'Deposits', 'DepositTypes', 'Costs']
     }
   },
   mounted: async function () {

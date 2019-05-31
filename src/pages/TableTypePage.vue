@@ -189,38 +189,38 @@ export default {
       displayTableColumns: {
         users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
-        cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        interestRates: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
+        costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
       tableColumns: {
         users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
-        cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        interestRates: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
+        costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
       tableQueryColumns: {
         users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type { id }', 'assets', 'owner { username }', 'createdAt', 'updatedAt' ],
-        cardTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard { cardNo }', 'targetCard { cardNo }', 'type { id }', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user { username }', 'type { id }', 'term', 'paid', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user { username }', 'type { id }', 'term', 'paid', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        interestRates: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
+        costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
       tableData: []
     }
@@ -268,7 +268,7 @@ export default {
           return 'id'
         case 'depositTypes':
           return 'id'
-        case 'interestRates':
+        case 'costs':
           return 'id'
       }
       return null
@@ -330,7 +330,7 @@ export default {
             { name: 'id', type: 'input-number', datatype: 'Int!' },
             { name: 'name', type: 'input', datatype: 'String!' }
           ]
-        case 'interestRates':
+        case 'costs':
           return [
             { name: 'id', type: 'input-number', datatype: 'Int!' },
             { name: 'name', type: 'input', datatype: 'String!' },

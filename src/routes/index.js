@@ -8,7 +8,7 @@ import TableTypePage from '@/pages/TableTypePage.vue'
 Vue.use(VueRouter)
 
 // define the type page
-const types = ['users', 'cards', 'cardTypes', 'transactions', 'transactionTypes', 'insurances', 'insuranceTypes', 'deposits', 'depositTypes', 'interestRates']
+const types = ['users', 'cards', 'cardTypes', 'transactions', 'transactionTypes', 'insurances', 'insuranceTypes', 'deposits', 'depositTypes', 'costs']
 
 export default new VueRouter({
   routes: [

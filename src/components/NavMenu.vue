@@ -23,12 +23,12 @@
           el-menu-item( index="/table/cards" ) Cards
           el-menu-item( index="/table/cardTypes" ) CardTypes
           el-menu-item( index="/table/transactions" ) Transactions
-          el-menu-item( index="/table/transactionTypes" ) transactionTypes
+          el-menu-item( index="/table/transactionTypes" ) TransactionTypes
           el-menu-item( index="/table/insurances" ) Insurances
           el-menu-item( index="/table/insuranceTypes" ) InsurancesTypes
           el-menu-item( index="/table/deposits" ) Deposits
           el-menu-item( index="/table/depositTypes" ) DepositTypes
-          el-menu-item( index="/table/interestRates" ) InterestRates
+          el-menu-item( index="/table/costs" ) Costs
 
 </template>
 
