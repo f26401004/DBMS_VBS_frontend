@@ -72,7 +72,6 @@ export default {
     return {
       showAddModal: false,
       querySentence: '',
-      currentTable: '',
       displayTableColumns: [],
       tableData: []
     }
@@ -81,13 +80,6 @@ export default {
     rawQuery: async function () {
       if (!this.querySentence) {
         return
-      }
-      const regx = /(?<=from|join|FROM|JOIN)\s+(\w+)/g
-      const queryTableName = this.querySentence.match(regx).map(target => target.replace(' ', ''))
-      if (queryTableName.length > 1) {
-        this.currentTable = ''
-      } else {
-        this.currentTable = queryTableName[0][0].toLowerCase() + queryTableName[0].substr(1)
       }
       try {
         const result = await fetch('http://localhost:3000/raw-sql', {
@@ -108,6 +100,8 @@ export default {
           this.tableData = await result.json()
           const selectedColumns = Object.keys(this.tableData[0])
           this.displayTableColumns = selectedColumns
+        } else {
+          this.querySentence = ''
         }
         this.$message.success('Successful operation!!')
       } catch (error) {

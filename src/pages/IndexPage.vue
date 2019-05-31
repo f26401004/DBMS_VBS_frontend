@@ -134,7 +134,7 @@ export default {
     try {
       const key = config.accessKey
       const date = new Date()
-      date.setMonth(date.getMonth() - 11)
+      date.setMonth(date.getMonth() - 12)
       date.setDate(1)
       for (let i = 0 ; i < 12 ; ++i) {
         const dateString = `${date.getFullYear()}-${date.getMonth() + 1 > 9 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1) }-${date.getDate() > 9 ? date.getDate() : '0' + (date.getDate())}`

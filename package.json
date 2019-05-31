@@ -29,6 +29,7 @@
     "fetch-jsonp": "^1.1.3",
     "graphql": "^14.3.0",
     "graphql-tag": "^2.10.1",
+    "js-sql-parse": "^0.1.71",
     "node-sass": "^4.12.0",
     "normalize.css": "^8.0.1",
     "pug": "^2.0.3",

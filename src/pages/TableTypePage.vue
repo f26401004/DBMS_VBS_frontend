@@ -90,7 +90,7 @@
             el-button(
               type="primary"
               icon="el-icon-search"
-              v-on:click=""
+              v-on:click="fetchOperation"
             ) Fetch
           el-col( v-if="$route.params.type !== 'transactions'" v-bind:span="2" )
             el-button(
@@ -173,6 +173,7 @@
 
 <script>
 import gql from 'graphql-tag'
+import sqlParser from 'js-sql-parse'
 
 export default {
   data: function () {
@@ -420,13 +421,30 @@ export default {
     },
     rawQuery: async function () {
       this.loading = true
-      // prevent from illegal query
-      const regx = /(?<=from|join|FROM|JOIN)\s+(\w+)/g
-      const queryTableName = this.querySentence.match(regx).map(target => target.replace(' ', ''))
-      console.log(queryTableName)
-      if (queryTableName.length > 1 || !queryTableName.includes(this.tableName)) {
-        this.$message.error(`You are allowd to query with ${this.tableName} table ONLY!!`)
-        return
+      // use js-sql-parse to prevent from illegal select query
+      if (this.querySentence.toLowerCase().indexOf('select') > -1) {
+        const test = sqlParser.parse(this.querySentence)
+        const referenceTableNames = test.referencedTables
+        console.log(referenceTableNames)
+        if (referenceTableNames.length > 1 || !referenceTableNames.includes(this.tableName)) {
+          this.$message.error(`You are allowd to query with ${this.tableName} table ONLY!!`)
+          return
+        }
+      } else {
+        // use simple regular expression to prevent from illegal insert/update/delete query
+        let regx
+        if (this.querySentence.toLowerCase().indexOf('insert') > -1) {
+          regx = /(?<=into|INTO)\s+(\w+)/g
+        } else if (this.querySentence.toLowerCase().indexOf('update') > -1) {
+          regx = /(?<=update|UPDATE)\s+(\w+)/g
+        } else if (this.querySentence.toLowerCase().indexOf('delete') > -1) {
+          regx = /(?<=from|FROM)\s+(\w+)/g
+        }
+        const queryTableName = this.querySentence.match(regx).map(target => target.replace(' ', ''))[0]
+        if (queryTableName !== this.tableName) {
+          this.$message.error(`You are allowd to query with ${this.tableName} table ONLY!!`)
+          return
+        }
       }
       if (!this.querySentence) {
         return
@@ -451,12 +469,27 @@ export default {
           this.tableData = JSON.parse(await result.text())
           const selectedColumns = Object.keys(this.tableData[0])
           this.displayTableColumns[this.$route.params.type] = selectedColumns
+        } else {
+          this.querySentence = ''
         }
         this.$message.success('Successful operation!!')
         this.loading = false
       } catch (error) {
         this.loading = false
         const msg = await error.text()
+        this.$message.error(msg)
+        console.log(msg)
+      }
+    },
+    fetchOperation: async function () {
+      try {
+        const result = await this.$apollo.mutate({
+          mutation: this.fetchExpression
+        })
+        this.tableData = result.data[this.$route.params.type]
+      } catch (error) {
+        this.loading = false
+        const msg = await error.message
         this.$message.error(msg)
         console.log(msg)
       }
@@ -468,7 +501,6 @@ export default {
       Object.values(this.formColumns).forEach(target => {
         params[target.name] = target.datatype
       })
-      console.log(this.addExpression(params))
       try {
         await this.$apollo.mutate({
           mutation: this.addExpression(params),
