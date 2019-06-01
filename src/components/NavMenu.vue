@@ -11,6 +11,18 @@
         text-color="#fff"
         active-text-color="#ffd04b"
       )
+        el-menu-item( index="/general" )
+          template( slot="title" )
+            i( class="el-icon-money" )
+            span General
+        el-menu-item( index="/deposit" )
+          template( slot="title" )
+            i( class="el-icon-document" )
+            span Deposit
+        el-menu-item( index="/insurance" )
+          template( slot="title" )
+            i( class="el-icon-notebook-2" )
+            span Insurance
         el-menu-item( index="/table" ) 
           template( slot="title" )
             i( class="el-icon-menu" )
@@ -26,8 +38,10 @@
           el-menu-item( index="/table/transactionTypes" ) TransactionTypes
           el-menu-item( index="/table/insurances" ) Insurances
           el-menu-item( index="/table/insuranceTypes" ) InsurancesTypes
+          el-menu-item( index="/table/insurancePayments" ) InsurancesPayments
           el-menu-item( index="/table/deposits" ) Deposits
           el-menu-item( index="/table/depositTypes" ) DepositTypes
+          el-menu-item( index="/table/depositPayments" ) DepositPayments
           el-menu-item( index="/table/costs" ) Costs
 
 </template>

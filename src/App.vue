@@ -27,7 +27,7 @@
     el-container( class="vbs_main_container" )
       el-aside( width="256px" )
         nav-menu
-      el-scrollbar( wrapClass="vbs_scrollbar_wrap_container" )
+      el-scrollbar( wrapClass="vbs_scrollbar_wrap_container" viewClass="vbs_scrollbar_view_container" )
         router-view
 </template>
 
@@ -111,6 +111,9 @@ body {
   &:hover {
     color: darken(white, 20%);
   }
+}
+.vbs_scrollbar_view_container {
+  width: calc(100vw - 256px);
 }
 .vbs_scrollbar_wrap_container {
   overflow: auto !important;

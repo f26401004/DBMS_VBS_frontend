@@ -192,10 +192,12 @@ export default {
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        insurances: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
+        insurances: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
-        deposits: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
+        insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
+        deposits: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
       tableColumns: {
@@ -204,10 +206,12 @@ export default {
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        insurances: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
+        insurances: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
-        deposits: [ 'id', 'user', 'type', 'term', 'paid', 'createdAt', 'updatedAt' ],
+        insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
+        deposits: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
       tableQueryColumns: {
@@ -216,10 +220,12 @@ export default {
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard { cardNo }', 'targetCard { cardNo }', 'type { id }', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        insurances: [ 'id', 'user { username }', 'type { id }', 'term', 'paid', 'createdAt', 'updatedAt' ],
+        insurances: [ 'id', 'user { username }', 'type { id }', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
-        deposits: [ 'id', 'user { username }', 'type { id }', 'term', 'paid', 'createdAt', 'updatedAt' ],
+        insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
+        deposits: [ 'id', 'user { username }', 'type { id }', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
       tableData: []
@@ -318,6 +324,13 @@ export default {
             { name: 'name', type: 'input', datatype: 'String!' },
             { name: 'interest_rate', type: 'input-number', datatype: 'Float!' }
           ]
+        case 'insurancePayments':
+          return [
+            { name: 'id', type: 'input', datatype: 'String!' },
+            { name: 'term', type: 'input-number', datatype: 'Int!' },
+            { name: 'deadline', type: 'input-date', datatype: 'String!' },
+            { name: 'status', type: 'select', options: ['Unpaid', 'Paid'], values: [0, 1], datatype: 'Int!' }
+          ]
         case 'deposits':
           return [
             { name: 'id', type: 'input-number', datatype: 'String!' },
@@ -329,6 +342,13 @@ export default {
           return [
             { name: 'id', type: 'input-number', datatype: 'Int!' },
             { name: 'name', type: 'input', datatype: 'String!' }
+          ]
+        case 'depositPayments':
+          return [
+            { name: 'id', type: 'input', datatype: 'String!' },
+            { name: 'term', type: 'input-number', datatype: 'Int!' },
+            { name: 'deadline', type: 'input-date', datatype: 'String!' },
+            { name: 'status', type: 'select', options: ['Unpaid', 'Paid'], values: [0, 1], datatype: 'Int!' }
           ]
         case 'costs':
           return [
