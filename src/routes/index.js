@@ -5,7 +5,7 @@ import IndexPage from '@/pages/IndexPage.vue'
 import TablePage from '@/pages/TablePage.vue'
 import TableTypePage from '@/pages/TableTypePage.vue'
 import GeneralPage from '@/pages/GeneralPage.vue'
-import DepositPage from '@/pages/DepositPage.vue'
+// import DepositPage from '@/pages/DepositPage.vue'
 import InsurancePage from '@/pages/InsurancePage.vue'
 
 Vue.use(VueRouter)
@@ -22,10 +22,6 @@ export default new VueRouter({
     {
       path: '/general',
       component: GeneralPage
-    },
-    {
-      path: '/deposit',
-      component: DepositPage
     },
     {
       path: '/insurance',

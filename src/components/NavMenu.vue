@@ -15,10 +15,6 @@
           template( slot="title" )
             i( class="el-icon-money" )
             span General
-        el-menu-item( index="/deposit" )
-          template( slot="title" )
-            i( class="el-icon-document" )
-            span Deposit
         el-menu-item( index="/insurance" )
           template( slot="title" )
             i( class="el-icon-notebook-2" )

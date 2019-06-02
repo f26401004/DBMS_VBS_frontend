@@ -1,5 +1,5 @@
 <template lang="pug">
-  el-container( class="vbs_table_type_page_root" )
+  div( class="vbs_table_type_page_root" )
     el-row
       el-col( v-bind:span="24" )
         h2 {{ $route.params.type.toUpperCase() }} Table
@@ -196,10 +196,10 @@ export default {
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
-        insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
+        insuranceTypes: [ 'id', 'name', 'value', 'terms', 'interestRate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
-        depositTypes: [ 'id', 'name', 'fixed_interest', 'floating_interest', 'createdAt', 'updatedAt' ],
+        depositTypes: [ 'id', 'name', 'fixedInterest', 'floatingInterest', 'createdAt', 'updatedAt' ],
         depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
@@ -210,10 +210,10 @@ export default {
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
-        insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
+        insuranceTypes: [ 'id', 'name', 'value', 'terms', 'interestRate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
-        depositTypes: [ 'id', 'name', 'fixed_interest', 'floating_interest', 'createdAt', 'updatedAt' ],
+        depositTypes: [ 'id', 'name', 'fixedInterest', 'floatingInterest', 'createdAt', 'updatedAt' ],
         depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
@@ -224,10 +224,10 @@ export default {
         transactions: [ 'id', 'userCard { cardNo }', 'targetCard { cardNo }', 'type { id }', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
         insurances: [ 'id', 'user { username }', 'type { id }', 'createdAt', 'updatedAt' ],
-        insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
+        insuranceTypes: [ 'id', 'name', 'value', 'terms', 'interestRate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user { username }', 'type { id }', 'createdAt', 'updatedAt' ],
-        depositTypes: [ 'id', 'name', 'fixed_interest', 'floating_interest', 'createdAt', 'updatedAt' ],
+        depositTypes: [ 'id', 'name', 'fixedInterest', 'floatingInterest', 'createdAt', 'updatedAt' ],
         depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
@@ -329,7 +329,7 @@ export default {
           return [
             { name: 'id', type: 'input-number', datatype: 'Int!' },
             { name: 'name', type: 'input', datatype: 'String!' },
-            { name: 'interest_rate', type: 'input-number', datatype: 'Float!' }
+            { name: 'interestRate', type: 'input-number', datatype: 'Float!' }
           ]
         case 'insurancePayments':
           return [
