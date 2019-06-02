@@ -1,14 +1,17 @@
 <template lang="pug">
-  el-container( class="vbs_table_page_root" )
+  div( class="vbs_table_page_root" )
     el-row
       el-col( v-bind:span="24" )
         h2 Table Page
+    el-row
       el-col( v-bind:span="24" )
         el-breadcrumb( separator-class="el-icon-arrow-right" )
           el-breadcrumb-item( to="/" ) Homepage
           el-breadcrumb-item( to="/table" ) Table
+    el-row
       el-col( v-bind:span="24" )
         el-divider
+    el-row
       el-col( v-bind:span="24" )
         el-row( type="flex" align="middle" v-bind:gutter="16" )
           el-col( v-bind:span="0.5" )

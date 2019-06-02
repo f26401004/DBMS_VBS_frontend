@@ -3,13 +3,16 @@
     el-row
       el-col( v-bind:span="24" )
         h2 {{ $route.params.type.toUpperCase() }} Table
+    el-row
       el-col( v-bind:span="24" )
         el-breadcrumb( separator-class="el-icon-arrow-right" )
           el-breadcrumb-item( to="/" ) Homepage
           el-breadcrumb-item( to="/table" ) Table
           el-breadcrumb-item( v-bind:to="`/table/${$route.params.type}`" ) {{ $route.params.type.toUpperCase() }}
+    el-row
       el-col( v-bind:span="24" )
         el-divider
+    el-row
       el-col( v-bind:span="24" )
         el-row( type="flex" align="middle" v-bind:gutter="16" )
           el-col( v-bind:span="0.5" )
@@ -196,7 +199,7 @@ export default {
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
-        depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        depositTypes: [ 'id', 'name', 'fixed_interest', 'floating_interest', 'createdAt', 'updatedAt' ],
         depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
@@ -210,7 +213,7 @@ export default {
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
-        depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        depositTypes: [ 'id', 'name', 'fixed_interest', 'floating_interest', 'createdAt', 'updatedAt' ],
         depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
@@ -224,7 +227,7 @@ export default {
         insuranceTypes: [ 'id', 'name', 'interest_rate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user { username }', 'type { id }', 'createdAt', 'updatedAt' ],
-        depositTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        depositTypes: [ 'id', 'name', 'fixed_interest', 'floating_interest', 'createdAt', 'updatedAt' ],
         depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
@@ -270,9 +273,13 @@ export default {
           return 'id'
         case 'insuranceTypes':
           return 'id'
+        case 'transactionPayments':
+          return 'id'
         case 'deposits':
           return 'id'
         case 'depositTypes':
+          return 'id'
+        case 'depositPayments':
           return 'id'
         case 'costs':
           return 'id'

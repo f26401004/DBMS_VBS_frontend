@@ -1,14 +1,17 @@
 <template lang="pug">
-  el-container( class="vbs_deposit_page_root" )
+  div( class="vbs_deposit_page_root" )
     el-row
       el-col( v-bind:span="24" )
         h2 General Page
+    el-row
       el-col( v-bind:span="24" )
         el-breadcrumb( separator-class="el-icon-arrow-right" )
           el-breadcrumb-item( to="/" ) Homepage
           el-breadcrumb-item( to="/general" ) General
+    el-row  
       el-col( v-bind:span="24" )
         el-divider
+    el-row  
       el-col( v-bind:span="24" )
         el-row( type="flex" justify="first" align="top" v-bind:gutter="24" )
           el-col( v-bind:span="16" )
@@ -116,7 +119,7 @@
                   el-col( v-bind:span="0.5" )
                     i( class="el-icon-coin" )
                   el-col( v-bind:span="23.5" )
-                    h4 Deposit Record
+                    h4 Records
               el-col( v-bind:span="24" )
                 el-table
                   el-table-column( prop="cardNo" label="CardNo" width="300" )

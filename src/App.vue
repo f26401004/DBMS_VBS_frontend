@@ -25,7 +25,7 @@
             el-col( v-bind:span=".5" )
               i( class="el-icon-s-tools vbs_hover_button" )
     el-container( class="vbs_main_container" )
-      el-aside( width="256px" )
+      el-aside( width="256px" height="100%" )
         nav-menu
       el-scrollbar( wrapClass="vbs_scrollbar_wrap_container" viewClass="vbs_scrollbar_view_container" )
         router-view
