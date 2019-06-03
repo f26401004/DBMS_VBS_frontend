@@ -15,7 +15,7 @@
       el-col( v-bind:span="24" )
         el-row( type="flex" justify="first" align="top" v-bind:gutter="24" )
           el-col( v-bind:span="16" )
-            el-tabs( value="withdraw" )
+            el-tabs( v-model="tab" )
               el-tab-pane( label="Withdraw" name="withdraw" )
                 el-card( shadow="hover" )
                   el-container( slot="header" )
@@ -60,7 +60,7 @@
                         el-col( v-bind:span="22" )
                           el-input( v-model="password" type="password" )
                     el-form-item
-                      el-button( v-on:click="depositOperation" type="primary" )
+                      el-button( v-on:click="submitOperation" type="primary" )
                         span( v-show="!loading" ) Submit
                         span( v-show="loading" )
                           i( class="el-icon-loading" )
@@ -108,7 +108,7 @@
                         el-col( v-bind:span="22" )
                           el-input( v-model="password" type="password" )
                     el-form-item
-                      el-button( v-on:click="depositOperation" type="primary" )
+                      el-button( v-on:click="submitOperation" type="primary" )
                         span( v-show="!loading" ) Submit
                         span( v-show="loading" )
                           i( class="el-icon-loading" )
@@ -127,10 +127,13 @@
 </template>
 
 <script>
+import gql from 'graphql-tag'
+
 export default {
   data: function () {
     return {
       loading: false,
+      tab: 'withdraw',
       cardNo: '',
       amount: 0,
       username: '',
@@ -138,11 +141,36 @@ export default {
     }
   },
   methods: {
-    depositOperation: async function () {
+    userAuth: async function () {
+      await this.$apollo.mutate({
+        mutation: gql`
+          mutation($cardNo: String!, $username: String!, $password: String!) {
+            assetsAuth(cardNo: $cardNo, username: $username, password: $password)
+          }`,
+        variables: {
+          cardNo: this.cardNo,
+          username: this.username,
+          password: this.password
+        }
+      })
+    },
+    submitOperation: async function () {
       try {
-        console.log('test')
+        await this.userAuth()
+        await this.$apollo.mutate({
+          mutation: gql`mutation($cardNo: String!, $value: Int!) {
+            cardAssetsOperation(cardNo: $cardNo, value: $value) {
+              cardNo, assets
+            }
+          }`,
+          variables: {
+            cardNo: this.cardNo,
+            value: this.tab === 'withdraw' ? this.amount * -1 : this.amount
+          }
+        })
       } catch (error) {
         console.log(error)
+        this.$message.error(error.message)
       }
     }
   }
