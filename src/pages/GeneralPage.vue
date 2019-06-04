@@ -15,7 +15,7 @@
       el-col( v-bind:span="24" )
         el-row( type="flex" justify="first" align="top" v-bind:gutter="24" )
           el-col( v-bind:span="16" )
-            el-tabs( v-model="tab" )
+            el-tabs( v-model="tab" v-on:tab-click="handleClick" )
               el-tab-pane( label="Withdraw" name="withdraw" )
                 el-card( shadow="hover" )
                   el-container( slot="header" )
@@ -46,7 +46,7 @@
                         el-col( v-bind:span="2" )
                           label Value
                         el-col( v-bind:span="22" )
-                          el-input( v-model="amount" type="number" )
+                          el-input( v-model.number="amount" type="number" )
                     el-form-item
                       el-row( type="flex" justify="start" align="middle" )
                         el-col( v-bind:span="2" )
@@ -94,7 +94,7 @@
                         el-col( v-bind:span="2" )
                           label Value
                         el-col( v-bind:span="22" )
-                          el-input( v-model="amount" type="number" )
+                          el-input( v-model.number="amount" type="number" )
                     el-form-item
                       el-row( type="flex" justify="start" align="middle" )
                         el-col( v-bind:span="2" )
@@ -117,13 +117,20 @@
               el-col( v-bind:span="24" )
                 el-row( type="flex" align="middle" v-bind:gutter="16" )
                   el-col( v-bind:span="0.5" )
-                    i( class="el-icon-coin" )
+                    i( class="el-icon-bank-card" )
                   el-col( v-bind:span="23.5" )
-                    h4 Records
+                    h4 Search Card Data
               el-col( v-bind:span="24" )
-                el-table
-                  el-table-column( prop="cardNo" label="CardNo" width="300" )
-                  el-table-column( prop="value" label="Amount" )
+                el-card( shadow="hover" )
+                  div( slot="header" )
+                    el-row( type="flex" justify="start" align="middle" v-bind:gutter="16")
+                      el-col( v-bind:span="4" )
+                        label CardNo
+                      el-col( v-bind:span="16" )
+                        el-input( v-model="queryCardNo" )
+                      el-col( v-bind:span="4" )
+                        el-button( type="primary" ) Search
+
 </template>
 
 <script>
@@ -137,15 +144,26 @@ export default {
       cardNo: '',
       amount: 0,
       username: '',
-      password: ''
+      password: '',
+      queryCardNo: '',
+      queryCardData: {
+        assets: 0,
+        owner: ''
+      }
     }
   },
   methods: {
-    userAuth: async function () {
+    handleClick: function () {
+      this.cardNo = ''
+      this.amount = 0
+      this.username = ''
+      this.password = ''
+    },
+    cardAuth: async function () {
       await this.$apollo.mutate({
         mutation: gql`
           mutation($cardNo: String!, $username: String!, $password: String!) {
-            assetsAuth(cardNo: $cardNo, username: $username, password: $password)
+            cardAuth(cardNo: $cardNo, username: $username, password: $password)
           }`,
         variables: {
           cardNo: this.cardNo,
@@ -156,18 +174,26 @@ export default {
     },
     submitOperation: async function () {
       try {
-        await this.userAuth()
+        await this.cardAuth()
+        console.log('test')
         await this.$apollo.mutate({
-          mutation: gql`mutation($cardNo: String!, $value: Int!) {
-            cardAssetsOperation(cardNo: $cardNo, value: $value) {
-              cardNo, assets
-            }
-          }`,
+          mutation: gql`
+            mutation($cardNo: String!, $value: Int!) {
+              cardAssetsOperation(cardNo: $cardNo, value: $value) {
+                cardNo, assets
+              }
+            }`,
           variables: {
             cardNo: this.cardNo,
-            value: this.tab === 'withdraw' ? this.amount * -1 : this.amount
+            value: (this.tab === 'withdraw' ? this.amount * -1 : this.amount)
           }
         })
+        this.$message.success('Success operation')
+        // erase the data
+        this.cardNo = ''
+        this.amount = 0
+        this.username = ''
+        this.password = ''
       } catch (error) {
         console.log(error)
         this.$message.error(error.message)

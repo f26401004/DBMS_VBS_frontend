@@ -8,22 +8,40 @@
         el-breadcrumb( separator-class="el-icon-arrow-right" )
           el-breadcrumb-item( to="/" ) Homepage
           el-breadcrumb-item( to="/insurance" ) Insurance
+          el-breadcrumb-item( to="/insurance/apply" ) Apply
     el-row  
       el-col( v-bind:span="24" )
         el-divider
+    el-row( type="flex" align="middle" )
+      el-col( v-bind:span="22" )
+        el-radio-group( v-model="currentType" )
+          el-radio-button( label="General" ) General 
+          el-radio-button( label="Saving" ) Saving 
+      el-col( v-bind:span="2" )
+        el-row( type="flex" justify="end" align="middle" )
+          el-button( type="primary" v-on:click="addTab" ) New Case
     el-row
       el-col( v-bind:span="24" )
-        el-tabs( v-model="currentTab" )
-          el-tab-pane( label="General" name="general" )
-            general-insurance-form
-          el-tab-pane( label="Saving" name="saving" )
-            saving-insurance-form
-
+        el-tabs(
+          v-model="editableTabsValue[currentType.toLowerCase()]"
+          type="card"
+          v-on:tab-remove="removeTab"
+          closable
+        )
+          el-tab-pane(
+            v-for="(item, index) of editableTabs[currentType.toLowerCase()]"
+            v-bind:key="item.name"
+            v-bind:label="item.title"
+            v-bind:name="item.name"
+            v-on:tab-remove="removeTab(editableTabsValue[currentType.toLowerCase()])"
+          )
+            component( v-bind:is="item.content" )
 </template>
 
 <script>
 import SavingInsuranceForm from '@/components/SavingInsuranceForm.vue'
 import GeneralInsuranceForm from '@/components/GeneralInsuranceForm.vue'
+import UUIDV4 from 'uuid/v4'
 
 export default {
   components: {
@@ -32,8 +50,55 @@ export default {
   },
   data: function () {
     return {
-      currentTab: 'general'
+      currentType: 'General',
+      editableTabsValue: {
+        general: '',
+        saving: ''
+      },
+      editableTabs: {
+        general: [
+          {
+            title: 'New Case',
+            name: UUIDV4(),
+            content: GeneralInsuranceForm
+          }
+        ],
+        saving: [
+          {
+            title: 'New Case',
+            name: UUIDV4(),
+            content: SavingInsuranceForm
+          }
+        ]
+      }
     }
+  },
+  methods: {
+    removeTab: function (targetName) {
+      if (this.editableTabsValue[this.currentType.toLowerCase()] === targetName) {
+        console.log('test')
+        const index = this.editableTabs[this.currentType.toLowerCase()].findIndex(target => target.name === this.editableTabsValue)
+        if (index !== this.editableTabs[this.currentType.toLowerCase()].length - 1) {
+          this.editableTabsValue[this.currentType.toLowerCase()] = this.editableTabs[this.currentType.toLowerCase()][index + 1].name
+        } else {
+          if (index - 1 > 0) {
+            this.editableTabsValue[this.currentType.toLowerCase()] = this.editableTabsValue[this.currentType.toLowerCase()][index - 1].name
+          } else {
+            this.editableTabsValue[this.currentType.toLowerCase()] = ''
+          }
+        }
+      }
+      this.editableTabs[this.currentType.toLowerCase()] = this.editableTabs[this.currentType.toLowerCase()].filter(tab => tab.name !== targetName)
+    },
+    addTab: function () {
+      this.editableTabs[this.currentType.toLowerCase()].push({
+        title: `New Case`,
+        name: UUIDV4(),
+        content: this.currentType === 'General' ? GeneralInsuranceForm : SavingInsuranceForm
+      })
+    }
+  },
+  mounted: function () {
   }
 }
 </script>

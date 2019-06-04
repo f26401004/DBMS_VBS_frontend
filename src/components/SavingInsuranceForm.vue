@@ -15,7 +15,7 @@
                 el-alert(
                   title="Description:"
                   type="info"
-                  description="Fill in some information about the user here. The user must be a bank user and hold at least one financial card."
+                  description="Fill in SSN here. The user must be a bank user and hold at least one financial card."
                   show-icon
                   v-bind:closable="false"
                 )
@@ -23,29 +23,15 @@
             el-form-item
               el-row( type="flex" justify="start" align="middle" )
                 el-col( v-bind:span="2" )
-                  label Username
-                el-col( v-bind:span="22" )
-                  el-input( v-model="applyer.username" )
-            el-form-item
-              el-row( type="flex" justify="start" align="middle" )
-                el-col( v-bind:span="2" )
-                  label Sex
-                el-col( v-bind:span="22" )
-                  el-select( v-model="applyer.sex" )
-                    el-option( v-bind:value="0" ) Male
-                    el-option( v-bind:value="1" ) Female
-            el-form-item
-              el-row( type="flex" justify="start" align="middle" )
-                el-col( v-bind:span="2" )
-                  label birthday
-                el-col( v-bind:span="22" )
-                  el-date-picker( v-model="applyer.birthday" type="date" placeholder="Select the birthday" )
-            el-form-item
-              el-row( type="flex" justify="start" align="middle" )
-                el-col( v-bind:span="2" )
                   label SSN
                 el-col( v-bind:span="22" )
                   el-input( v-model="applyer.SSN" )
+            el-form-item
+              el-row( type="flex" justify="start" align="middle" )
+                el-col( v-bind:span="2" )
+                  label Card No.
+                el-col( v-bind:span="22" )
+                  el-input( v-model="applyer.cardNo" )
     el-row
       el-col( v-bind:span="24" )
         el-card
@@ -73,13 +59,13 @@
                     el-col( v-bind:span="2" )
                       label Target Amount
                     el-col( v-bind:span="22" )
-                      el-input( v-model="insurance.amount" )
+                      el-input( v-model.number="insurance.amount" type="number" )
                 el-form-item
                   el-row( type="flex" justify="start" align="middle" )
                     el-col( v-bind:span="2" )
                       label Type
                     el-col( v-bind:span="22" )
-                      el-select( v-model="insurance.type" )
+                      el-select( v-model.number="insurance.type" )
                         el-option(
                           v-for="(iter, index) of typeFilter"
                           v-bind:key="`deposit-type-${index}-${iter.name}`"
@@ -91,7 +77,7 @@
                     el-col( v-bind:span="2" )
                       label Rate Type
                     el-col( v-bind:span="22" )
-                      el-select( v-model="insurance.rate" )
+                      el-select( v-model.number="insurance.rate" )
                         el-option( v-if="insurance.type !== null" v-bind:value="0" v-bind:label="`Fixed Rate - ${depositTypes[insurance.type].fixedInterest}`" ) Fixed Rate - {{ depositTypes[insurance.type].fixedInterest }}
                         el-option( v-if="insurance.type !== null" v-bind:value="1" v-bind:label="`Floating Rate - ${depositTypes[insurance.type].floatingInterest}`" ) Floating Rate - {{ depositTypes[insurance.type].floatingInterest }}
                 el-form-item
@@ -155,9 +141,7 @@ export default {
     return {
       applyer: {
         username: '',
-        sex: '',
-        SSN: '',
-        birthday: ''
+        cardNo: '',
       },
       insurance: {
         amount: null,
@@ -261,9 +245,7 @@ export default {
     clear: function () {
       this.applyer = Object.assign({}, {
         username: '',
-        sex: '',
-        SSN: '',
-        birthday: ''
+        cardNo: ''
       })
       this.insurance = Object.assign({}, {
         amount: null,
@@ -271,10 +253,59 @@ export default {
         term: null,
         rate: null
       })
-      this.$message.success('Clear the form success.')
+      this.$message.info('Clear the form success.')
+    },
+    ownerAuth: async function () {
+      await this.$apollo.mutate({
+        mutation: gql`
+          mutation($cardNo: String!, $SSN: String!) {
+            ownerAuth(cardNo: $cardNo, SSN: $SSN)
+          }`,
+        variables: {
+          cardNo: this.applyer.cardNo,
+          SSN: this.applyer.SSN
+        }
+      })
     },
     applySavingInsurance: async function () {
-
+      try {
+        await this.ownerAuth()
+        const result = await this.$apollo.mutate({
+          mutation: gql`
+            mutation ($user: String!, $type: Int!, $amount: Int!, $interestType: Int!, $terms: Int!) {
+              insertDeposits(user: $user, type: $type, terms: $terms, amount: $amount, interestType: $interestType) {
+                id
+              }
+            }
+          `,
+          variables: {
+            user: this.applyer.SSN,
+            type: this.insurance.type,
+            amount: this.insurance.amount,
+            interestType: this.insurance.rate,
+            terms: this.insurance.term
+          }
+        })
+        const savingInsuranceID = result.data.insertDeposits.id
+        console.log(savingInsuranceID)
+        const initSavingInsurancePayments = gql`
+          mutation {
+            initSavingInsurancePayments(id: "${savingInsuranceID}", terms: ${this.insurance.term}) {
+              id
+            }
+          }
+        `
+        console.log(initSavingInsurancePayments)
+        await this.$apollo.mutate({
+          mutation: initSavingInsurancePayments
+        })
+        this.$message.success('Success operation')
+        // emit the signal to erase the tab
+        this.$parent.$emit('tab-remove')
+      } catch (error) {
+        console.log(error)
+        this.$message.error(error.message)
+      }
     }
   }
 }

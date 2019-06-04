@@ -190,7 +190,7 @@ export default {
       currentInput: { init: '' },
       currentIndex: -1,
       displayTableColumns: {
-        users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
+        users: [ 'username', 'authCode', 'SSN', 'permission', 'sex', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
@@ -198,13 +198,13 @@ export default {
         insurances: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'value', 'terms', 'interestRate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
-        deposits: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
+        deposits: [ 'id', 'user', 'type', 'interestType', 'terms', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'fixedInterest', 'floatingInterest', 'createdAt', 'updatedAt' ],
         depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
       tableColumns: {
-        users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
+        users: [ 'username', 'authCode', 'SSN', 'permission', 'sex', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
@@ -212,13 +212,13 @@ export default {
         insurances: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'value', 'terms', 'interestRate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
-        deposits: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
+        deposits: [ 'id', 'user', 'type', 'interestType', 'terms', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'fixedInterest', 'floatingInterest', 'createdAt', 'updatedAt' ],
         depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
       },
       tableQueryColumns: {
-        users: [ 'username', 'authCode', 'SSN', 'permission', 'createdAt', 'updatedAt' ],
+        users: [ 'username', 'authCode', 'SSN', 'permission', 'sex', 'createdAt', 'updatedAt' ],
         cards: [ 'cardNo', 'csc', 'type { id }', 'assets', 'owner { username }', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard { cardNo }', 'targetCard { cardNo }', 'type { id }', 'value', 'createdAt', 'updatedAt' ],
@@ -226,7 +226,7 @@ export default {
         insurances: [ 'id', 'user { username }', 'type { id }', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'value', 'terms', 'interestRate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
-        deposits: [ 'id', 'user { username }', 'type { id }', 'createdAt', 'updatedAt' ],
+        deposits: [ 'id', 'user { username }', 'type { id }', 'interestType', 'terms', 'createdAt', 'updatedAt' ],
         depositTypes: [ 'id', 'name', 'fixedInterest', 'floatingInterest', 'createdAt', 'updatedAt' ],
         depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
@@ -241,14 +241,19 @@ export default {
       },
       update: function (data) {
         data = data[this.$route.params.type]
+        console.log(data)
         // flatten the object value to one depth in order to display on the table
         data.forEach(target => {
+          console.log(target)
           Object.keys(target).forEach(key => {
-            if (typeof target[key] === 'object') {
+            if (typeof target[key] === 'object' && target[key] !== null) {
+              console.log(Object.values(target[key]))
               target[key] = Object.values(target[key])[0]
             }
           })
+          
         })
+        console.log(data)
         return data
       }
     }
@@ -260,7 +265,7 @@ export default {
     tablePK: function () {
       switch (this.$route.params.type) {
         case 'users':
-          return 'username'
+          return 'SSN'
         case 'cards':
           return 'cardNo'
         case 'cardTypes':
@@ -293,12 +298,14 @@ export default {
             { name: 'username', type: 'input', datatype: 'String!' },
             { name: 'password', type: 'input-password', datatype: 'String!' },
             { name: 'SSN', type: 'input', datatype: 'String!' },
-            { name: 'permission', type: 'select', options: ['General', 'Admin'], values: [0, 1], datatype: 'Int!' }
+            { name: 'permission', type: 'select', options: ['General', 'Admin'], values: [0, 1], datatype: 'Int!' },
+            { name: 'sex', type: 'select', options: ['Male', 'Female'], values: [0, 1], datatype: 'Int!' }
           ] : [
             { name: 'username', type: 'input', datatype: 'String!' },
             { name: 'authCode', type: 'input', datatype: 'String!' },
             { name: 'SSN', type: 'input', datatype: 'String!' },
-            { name: 'permission', type: 'select', options: ['General', 'Admin'], values: [0, 1], datatype: 'Int!' }
+            { name: 'permission', type: 'select', options: ['General', 'Admin'], values: [0, 1], datatype: 'Int!' },
+            { name: 'sex', type: 'select', options: ['Male', 'Female'], values: [0, 1], datatype: 'Int!' }
           ]
         case 'cards':
           return [
@@ -323,7 +330,6 @@ export default {
             { name: 'id', type: 'input', datatype: 'String!' },
             { name: 'user', type: 'input', datatype: 'String!' },
             { name: 'type', type: 'select', options: [], values: [], datatype: 'Int!' },
-            { name: 'term', type: 'input-number', datatype: 'Int!' }
           ]
         case 'insuranceTypes':
           return [
@@ -343,7 +349,8 @@ export default {
             { name: 'id', type: 'input-number', datatype: 'String!' },
             { name: 'user', type: 'input', datatype: 'String!' },
             { name: 'type', type: 'select', options: [], values: [], datatype: 'Int!' },
-            { name: 'term', type: 'input-number', datatype: 'Int!' }
+            { name: 'interestType', type: 'select', options: [], values: [], datatype: 'Int!' },
+            { name: 'terms', type: 'input-number', datatype: 'Int!' }
           ]
         case 'depositTypes':
           return [
