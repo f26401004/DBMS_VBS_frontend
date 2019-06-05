@@ -21,7 +21,7 @@
               i( class="el-icon-notebook-2" )
               span Insurance
             el-menu-item( index="/insurance/apply" ) Apply
-            el-menu-item( index="/insurance/mark" ) Check
+            el-menu-item( index="/insurance/check" ) Check
           el-menu-item( index="/table" ) 
             template( slot="title" )
               i( class="el-icon-menu" )

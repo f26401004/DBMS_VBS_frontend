@@ -1,5 +1,5 @@
 <template lang="pug">
-  el-container( class="vbs_index_page_root" )
+  div( class="vbs_index_page_root" )
     el-row
       el-col( v-bind:span="24" )
         el-row
@@ -72,26 +72,27 @@
                 el-card( shadow="hover" )
                   div( slot="header" ) USD TO SGD
                   div {{ currentExchangeData.USDSGD }}
-      el-col( v-bind:span="24" )
-        el-row
-          el-col( v-bind:span="24" )
-            el-row( type="flex" justify="start" align="middle" v-bind:gutter="16" )
-              el-col( v-bind:span="0.5" )
-                i( class="el-icon-money" )
-              el-col( v-bind:span="23.5" )
-                h3 Recent Transactions
-        el-row
-          el-col( v-bind:span="24" )
-            el-alert(
-              title="info"
-              type="info"
-              description="Here display all transactions in recent two month."
-              show-icon
-              v-bind:closable="false"
-            )
-        el-row
-          el-col( v-bind:span="24" )
-            ve-histogram( v-bind:data="transactionData" v-bind:extend="exchangeRatioExtends" )
+      el-row
+        el-col( v-bind:span="24" )
+          el-row
+            el-col( v-bind:span="24" )
+              el-row( type="flex" justify="start" align="middle" v-bind:gutter="16" )
+                el-col( v-bind:span="0.5" )
+                  i( class="el-icon-money" )
+                el-col( v-bind:span="23.5" )
+                  h3 Recent Transactions
+          el-row
+            el-col( v-bind:span="24" )
+              el-alert(
+                title="info"
+                type="info"
+                description="Here display all transactions in recent two month."
+                show-icon
+                v-bind:closable="false"
+              )
+          el-row
+            el-col( v-bind:span="24" )
+              ve-histogram( v-bind:data="transactionData" v-bind:extend="exchangeRatioExtends" )
 
 </template>
 
@@ -198,12 +199,5 @@ export default {
     overflow-y: auto;
     padding: 24px 48px;
     box-sizing: border-box;
-  }
-  .el-row {
-    width: 100%;
-    margin-bottom: 12px;
-    &:last-child {
-      margin-bottom: 0;
-    }
   }
 </style>

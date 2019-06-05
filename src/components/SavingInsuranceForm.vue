@@ -120,7 +120,7 @@
                   el-tag Interest Rate
                 el-col( v-bind:span="16" )
                   label {{ insurance.rate === null ? 0 : (insurance.rate ? depositTypes[insurance.type].floatingInterest : depositTypes[insurance.type].fixedInterest) }}
-          el-table( v-bind:data="records" )
+          el-table( v-bind:data="records" height="500" )
             el-table-column( prop="term" label="Term" )
             el-table-column( prop="amount" label="Amount" )
             el-table-column( prop="deadline" label="Deadline" )
@@ -197,7 +197,7 @@ export default {
           return [10, 12]
         case 9:
         case 10:
-          return [12, 24]
+          return [13, 24]
         case 11:
         case 12:
           return [25, 36]
@@ -219,20 +219,25 @@ export default {
       currentDate.setDate(1)
       for (let i = 0 ; i < this.insurance.term ; ++i) {
         let currentTotal
+        let currentSaving
         if (temp.length === 0) {
           currentTotal = 0
+          currentSaving = 0
         } else  {
           currentTotal = temp.reduce((accumulator, target) => {
             return accumulator + target.amount + target.profit
           }, 0)
+          currentSaving = temp.reduce((accumulator, target) => {
+            return accumulator + target.amount
+          }, 0)
         }
         // get rate
-        const rate = this.insurance.rate === 0 ? this.depositTypes[this.insurance.type].floatingInterest : this.depositTypes[this.insurance.type].fixedInterest
+        const rate = this.insurance.rate === 0 ? this.depositTypes[this.insurance.type].fixedInterest : this.depositTypes[this.insurance.type].floatingInterest
         temp.push({
           term: i + 1,
           amount: amount,
           deadline: currentDate.toDateString(),
-          profit: Math.round((currentTotal * rate) * 100) / 100,
+          profit: this.insurance.term > 12 ? Math.round((currentTotal * rate) * 100) / 100 : Math.round((currentSaving * rate) * 100) / 100,
           currentTotal: Math.round((amount + currentTotal * (1 + rate)) * 100) / 100
         })
         currentDate.setMonth(currentDate.getMonth() + 1)

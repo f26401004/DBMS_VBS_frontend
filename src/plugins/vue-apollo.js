@@ -14,7 +14,23 @@ const httpLink = createHttpLink({
 })
 
 // Cache implementation
-const cache = new InMemoryCache()
+const cache = new InMemoryCache(
+  {
+    dataIdFromObject: object => {
+      switch (object.__typename) {
+        case 'DepositType': 
+          return `${object.id}_${object.name}`
+          case 'InsuranceType': 
+          return `${object.id}_${object.name}`
+        case 'DepositPayment': 
+          return `${object.id}_${object.term}`
+        case 'InsurancePayment':
+        return `${object.id}_${object.term}`
+        default: return object.id || object._id
+      }
+    }
+  }
+)
 
 // Create the apollo client
 const apolloClient = new ApolloClient({

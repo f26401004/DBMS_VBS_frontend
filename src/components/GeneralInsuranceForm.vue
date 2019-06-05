@@ -393,9 +393,9 @@ export default {
         const result = await this.$apollo.mutate({
           mutation: insertInsuranceExpression,
           variables: {
-            user: this.applyer.username,
-            insured: this.insured.username,
-            beneficiary: this.beneficiary.username,
+            user: this.applyer.SSN,
+            insured: this.insured.SSN,
+            beneficiary: this.beneficiary.SSN,
             type: this.insurance.type
           }
         })

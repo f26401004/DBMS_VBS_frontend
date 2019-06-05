@@ -195,7 +195,7 @@ export default {
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        insurances: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
+        insurances: [ 'id', 'user', 'type', 'insured', 'beneficiary', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'value', 'terms', 'interestRate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user', 'type', 'interestType', 'terms', 'createdAt', 'updatedAt' ],
@@ -209,7 +209,7 @@ export default {
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        insurances: [ 'id', 'user', 'type', 'createdAt', 'updatedAt' ],
+        insurances: [ 'id', 'user', 'type', 'insured', 'beneficiary', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'value', 'terms', 'interestRate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user', 'type', 'interestType', 'terms', 'createdAt', 'updatedAt' ],
@@ -223,7 +223,7 @@ export default {
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard { cardNo }', 'targetCard { cardNo }', 'type { id }', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
-        insurances: [ 'id', 'user { username }', 'type { id }', 'createdAt', 'updatedAt' ],
+        insurances: [ 'id', 'user { SSN }', 'insured { SSN }', 'beneficiary { SSN }', 'type { id }', 'createdAt', 'updatedAt' ],
         insuranceTypes: [ 'id', 'name', 'value', 'terms', 'interestRate', 'createdAt', 'updatedAt' ],
         insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
         deposits: [ 'id', 'user { username }', 'type { id }', 'interestType', 'terms', 'createdAt', 'updatedAt' ],
@@ -329,6 +329,8 @@ export default {
           return [
             { name: 'id', type: 'input', datatype: 'String!' },
             { name: 'user', type: 'input', datatype: 'String!' },
+            { name: 'insured', type: 'input', datatype: 'String!' },
+            { name: 'beneficiary', type: 'input', datatype: 'String!' },
             { name: 'type', type: 'select', options: [], values: [], datatype: 'Int!' },
           ]
         case 'insuranceTypes':
@@ -682,12 +684,5 @@ export default {
     overflow-y: auto;
     padding: 24px 48px;
     box-sizing: border-box;
-  }
-  .el-row {
-    width: 100%;
-    margin-bottom: 12px;
-    &:last-child {
-      margin-bottom: 0;
-    }
   }
 </style>

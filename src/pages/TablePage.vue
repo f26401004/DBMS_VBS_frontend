@@ -126,11 +126,4 @@ export default {
     padding: 24px 48px;
     box-sizing: border-box;
   }
-  .el-row {
-    width: 100%;
-    margin-bottom: 12px;
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
 </style>

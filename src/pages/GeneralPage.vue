@@ -175,7 +175,6 @@ export default {
     submitOperation: async function () {
       try {
         await this.cardAuth()
-        console.log('test')
         await this.$apollo.mutate({
           mutation: gql`
             mutation($cardNo: String!, $value: Int!) {
@@ -211,9 +210,5 @@ export default {
     overflow-y: auto;
     padding: 24px 48px;
     box-sizing: border-box;
-  }
-  .el-row {
-    width: 100%;
-    margin-bottom: 12px;
   }
 </style>

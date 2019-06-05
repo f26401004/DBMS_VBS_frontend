@@ -118,4 +118,11 @@ body {
 .vbs_scrollbar_wrap_container {
   overflow: auto !important;
 }
+.el-row {
+  width: 100%;
+  margin-bottom: 12px;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
 </style>
