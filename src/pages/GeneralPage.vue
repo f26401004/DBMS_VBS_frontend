@@ -129,8 +129,29 @@
                       el-col( v-bind:span="16" )
                         el-input( v-model="queryCardNo" )
                       el-col( v-bind:span="4" )
-                        el-button( type="primary" ) Search
-
+                        el-button( type="primary" v-on:click="searchCard" ) Search
+                  div( v-if="Object.keys(queryCardData).length" )
+                    el-row( type="flex" justify="space-between" align="middle" )
+                      el-tag CardNo
+                      label {{ queryCardData.cardNo }}
+                    el-row( type="flex" justify="space-between" align="middle" )
+                      el-tag Owner
+                      label {{ queryCardData.owner.SSN }}
+                    el-row( type="flex" justify="space-between" align="middle" )
+                      el-tag Assets
+                      label {{ queryCardData.assets }}
+                    el-row( type="flex" justify="space-between" align="middle" )
+                      el-tag Type
+                      label {{ queryCardData.type.name }}
+                    el-row( type="flex" justify="space-between" align="middle" )
+                      el-tag Bonus Point
+                      label {{ queryCardData.bonusPoint }}
+                    el-row( type="flex" justify="space-between" align="middle" )
+                      el-tag Created At
+                      label {{ queryCardData.createdAt }}
+                    el-row( type="flex" justify="space-between" align="middle" )
+                      el-tag Updated At
+                      label {{ queryCardData.updatedAt }}
 </template>
 
 <script>
@@ -146,10 +167,7 @@ export default {
       username: '',
       password: '',
       queryCardNo: '',
-      queryCardData: {
-        assets: 0,
-        owner: ''
-      }
+      queryCardData: {}
     }
   },
   methods: {
@@ -193,6 +211,27 @@ export default {
         this.amount = 0
         this.username = ''
         this.password = ''
+      } catch (error) {
+        console.log(error)
+        this.$message.error(error.message)
+      }
+    },
+    searchCard: async function () {
+      try {
+        const searchExpression = gql`
+          query {
+            card (cardNo: "${this.queryCardNo}") {
+              cardNo, assets, bonusPoint, owner { SSN }, type { name } ,createdAt, updatedAt
+            }
+          }
+        `
+        console.log(searchExpression)
+        const result = await this.$apollo.mutate({
+          mutation: searchExpression
+        })
+        this.queryCardData = Object.assign({}, result.data.card)
+        console.log(result.data)
+        this.$message.success('Success operation!')
       } catch (error) {
         console.log(error)
         this.$message.error(error.message)

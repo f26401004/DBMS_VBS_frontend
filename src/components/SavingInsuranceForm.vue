@@ -1,131 +1,134 @@
 <template lang="pug">
   div
-    el-row
-      el-col( v-bind:span="24" )
-        el-card
-          el-container( slot="header" )
-            el-row
-              el-col( v-bind:span="24" )
-                el-row( type="flex" align="middle" v-bind:gutter="16" )
-                  el-col( v-bind:span="0.5" )
-                    i( class="el-icon-user-solid" )
-                  el-col( v-bind:span="23.5" )
-                    h4 Applyer Information
-              el-col( v-bind:span="24" )
-                el-alert(
-                  title="Description:"
-                  type="info"
-                  description="Fill in SSN here. The user must be a bank user and hold at least one financial card."
-                  show-icon
-                  v-bind:closable="false"
-                )
-          el-form
-            el-form-item
-              el-row( type="flex" justify="start" align="middle" )
-                el-col( v-bind:span="2" )
-                  label SSN
-                el-col( v-bind:span="22" )
-                  el-input( v-model="applyer.SSN" )
-            el-form-item
-              el-row( type="flex" justify="start" align="middle" )
-                el-col( v-bind:span="2" )
-                  label Card No.
-                el-col( v-bind:span="22" )
-                  el-input( v-model="applyer.cardNo" )
-    el-row
-      el-col( v-bind:span="24" )
-        el-card
-          el-container( slot="header" )
-            el-row
-              el-col( v-bind:span="24" )
+    el-row( type="flex" justify="start" align="start" v-bind:gutter="24" )
+      el-col( v-bind:span="10" )
+        el-row
+          el-col( v-bind:span="24" )
+            el-card
+              el-container( slot="header" )
+                el-row
+                  el-col( v-bind:span="24" )
+                    el-row( type="flex" align="middle" v-bind:gutter="16" )
+                      el-col( v-bind:span="0.5" )
+                        i( class="el-icon-user-solid" )
+                      el-col( v-bind:span="23.5" )
+                        h4 Applyer Information
+                  el-col( v-bind:span="24" )
+                    el-alert(
+                      title="Description:"
+                      type="info"
+                      description="Fill in SSN here. The user must be a bank user and hold at least one financial card."
+                      show-icon
+                      v-bind:closable="false"
+                    )
+              el-form
+                el-form-item
+                  el-row( type="flex" justify="start" align="middle" )
+                    el-col( v-bind:span="4" )
+                      label SSN
+                    el-col( v-bind:span="20" )
+                      el-input( v-model="applyer.SSN" )
+                el-form-item
+                  el-row( type="flex" justify="start" align="middle" )
+                    el-col( v-bind:span="4" )
+                      label Card No.
+                    el-col( v-bind:span="20" )
+                      el-input( v-model="applyer.cardNo" )
+        el-row
+          el-col( v-bind:span="24" )
+            el-card
+              el-container( slot="header" )
+                el-row
+                  el-col( v-bind:span="24" )
+                    el-row( type="flex" align="middle" v-bind:gutter="16" )
+                      el-col( v-bind:span="0.5" )
+                        i( class="el-icon-s-order" )
+                      el-col( v-bind:span="23.5" )
+                        h4 Saving Insurance Information
+                  el-col( v-bind:span="24" )
+                    el-alert(
+                      title="Description:"
+                      type="info"
+                      description="Fill in some information about the savings insurance here."
+                      show-icon
+                      v-bind:closable="false"
+                    )
+              el-row
+                el-col( v-bind:span="24" )
+                  el-form
+                    el-form-item
+                      el-row( type="flex" justify="start" align="middle" )
+                        el-col( v-bind:span="6" )
+                          label Target Amount
+                        el-col( v-bind:span="18" )
+                          el-input( v-model.number="insurance.amount" type="number" )
+                    el-form-item
+                      el-row( type="flex" justify="start" align="middle" )
+                        el-col( v-bind:span="6" )
+                          label Type
+                        el-col( v-bind:span="18" )
+                          el-select( v-model.number="insurance.type" )
+                            el-option(
+                              v-for="(iter, index) of typeFilter"
+                              v-bind:key="`deposit-type-${index}-${iter.name}`"
+                              v-bind:label="iter.name"
+                              v-bind:value="iter.id"
+                            ) {{ iter.name }}
+                    el-form-item
+                      el-row( type="flex" justify="start" align="middle" )
+                        el-col( v-bind:span="6" )
+                          label Rate Type
+                        el-col( v-bind:span="18" )
+                          el-select( v-model.number="insurance.rate" )
+                            el-option( v-if="insurance.type !== null" v-bind:value="0" v-bind:label="`Fixed Rate - ${depositTypes[insurance.type].fixedInterest}`" ) Fixed Rate - {{ depositTypes[insurance.type].fixedInterest }}
+                            el-option( v-if="insurance.type !== null" v-bind:value="1" v-bind:label="`Floating Rate - ${depositTypes[insurance.type].floatingInterest}`" ) Floating Rate - {{ depositTypes[insurance.type].floatingInterest }}
+                    el-form-item
+                      el-row( type="flex" justify="start" align="middle" )
+                        el-col( v-bind:span="6" )
+                          label Total Terms
+                        el-col( v-bind:span="18" )
+                          el-select( v-model="insurance.term" )
+                            el-option(
+                              v-for="(iter, index) of Array.from({ length: termBounder[1] - termBounder[0] + 1 }, (v, i) => termBounder[0] + i)"
+                              v-bind:value="iter"
+                              v-bind:key="`term-${iter}`"
+                              v-bind:label="`${iter} month(s)`"
+                            ) {{ iter }} month(s)
+      el-col( v-bind:span="14" )
+        el-row
+          el-col( v-bind:span="24" )
+            el-card
+              el-container( slot="header" )
                 el-row( type="flex" align="middle" v-bind:gutter="16" )
                   el-col( v-bind:span="0.5" )
                     i( class="el-icon-s-order" )
                   el-col( v-bind:span="23.5" )
-                    h4 Saving Insurance Information
-              el-col( v-bind:span="24" )
-                el-alert(
-                  title="Description:"
-                  type="info"
-                  description="Fill in some information about the savings insurance here."
-                  show-icon
-                  v-bind:closable="false"
-                )
-          el-row
-            el-col( v-bind:span="24" )
-              el-form
-                el-form-item
-                  el-row( type="flex" justify="start" align="middle" )
-                    el-col( v-bind:span="2" )
-                      label Target Amount
-                    el-col( v-bind:span="22" )
-                      el-input( v-model.number="insurance.amount" type="number" )
-                el-form-item
-                  el-row( type="flex" justify="start" align="middle" )
-                    el-col( v-bind:span="2" )
-                      label Type
-                    el-col( v-bind:span="22" )
-                      el-select( v-model.number="insurance.type" )
-                        el-option(
-                          v-for="(iter, index) of typeFilter"
-                          v-bind:key="`deposit-type-${index}-${iter.name}`"
-                          v-bind:label="iter.name"
-                          v-bind:value="iter.id"
-                        ) {{ iter.name }}
-                el-form-item
-                  el-row( type="flex" justify="start" align="middle" )
-                    el-col( v-bind:span="2" )
-                      label Rate Type
-                    el-col( v-bind:span="22" )
-                      el-select( v-model.number="insurance.rate" )
-                        el-option( v-if="insurance.type !== null" v-bind:value="0" v-bind:label="`Fixed Rate - ${depositTypes[insurance.type].fixedInterest}`" ) Fixed Rate - {{ depositTypes[insurance.type].fixedInterest }}
-                        el-option( v-if="insurance.type !== null" v-bind:value="1" v-bind:label="`Floating Rate - ${depositTypes[insurance.type].floatingInterest}`" ) Floating Rate - {{ depositTypes[insurance.type].floatingInterest }}
-                el-form-item
-                  el-row( type="flex" justify="start" align="middle" )
-                    el-col( v-bind:span="2" )
-                      label Total Terms
-                    el-col( v-bind:span="22" )
-                      el-select( v-model="insurance.term" )
-                        el-option(
-                          v-for="(iter, index) of Array.from({ length: termBounder[1] - termBounder[0] + 1 }, (v, i) => termBounder[0] + i)"
-                          v-bind:value="iter"
-                          v-bind:key="`term-${iter}`"
-                          v-bind:label="`${iter} month(s)`"
-                        ) {{ iter }} month(s)
-    el-row
-      el-col( v-bind:span="24" )
-        el-card
-          el-container( slot="header" )
-            el-row( type="flex" align="middle" v-bind:gutter="16" )
-              el-col( v-bind:span="0.5" )
-                i( class="el-icon-s-order" )
-              el-col( v-bind:span="23.5" )
-                h4 Computed Terms Information
-          el-row
-            el-col( v-bind:span="8" )
-              el-row( type="flex" justify="start" align="middle" v-bind:gutter="24" )
+                    h4 Computed Terms Information
+              el-row
                 el-col( v-bind:span="8" )
-                  el-tag Terms
-                el-col( v-bind:span="16" )
-                  label {{ insurance.term }}
-            el-col( v-bind:span="8" )
-              el-row( type="flex" justify="start" align="middle" v-bind:gutter="24" )
+                  el-row( type="flex" justify="start" align="middle" v-bind:gutter="24" )
+                    el-col( v-bind:span="8" )
+                      el-tag Terms
+                    el-col( v-bind:span="16" )
+                      label {{ insurance.term }}
                 el-col( v-bind:span="8" )
-                  el-tag Total Amount
-                el-col( v-bind:span="16" )
-                  label {{ insurance.amount }}
-            el-col( v-bind:span="8" )
-              el-row( type="flex" justify="start" align="middle" v-bind:gutter="24" )
+                  el-row( type="flex" justify="start" align="middle" v-bind:gutter="24" )
+                    el-col( v-bind:span="8" )
+                      el-tag Total Amount
+                    el-col( v-bind:span="16" )
+                      label {{ insurance.amount }}
                 el-col( v-bind:span="8" )
-                  el-tag Interest Rate
-                el-col( v-bind:span="16" )
-                  label {{ insurance.rate === null ? 0 : (insurance.rate ? depositTypes[insurance.type].floatingInterest : depositTypes[insurance.type].fixedInterest) }}
-          el-table( v-bind:data="records" height="500" )
-            el-table-column( prop="term" label="Term" )
-            el-table-column( prop="amount" label="Amount" )
-            el-table-column( prop="deadline" label="Deadline" )
-            el-table-column( prop="profit" label="Profit" )
-            el-table-column( prop="currentTotal" label="Current Total" )
+                  el-row( type="flex" justify="start" align="middle" v-bind:gutter="24" )
+                    el-col( v-bind:span="8" )
+                      el-tag Interest Rate
+                    el-col( v-bind:span="16" )
+                      label {{ insurance.rate === null ? 0 : (insurance.rate ? depositTypes[insurance.type].floatingInterest : depositTypes[insurance.type].fixedInterest) }}
+              el-table( v-bind:data="records" height="500" )
+                el-table-column( prop="term" label="Term" )
+                el-table-column( prop="amount" label="Amount" )
+                el-table-column( prop="deadline" label="Deadline" )
+                el-table-column( prop="profit" label="Profit" )
+                el-table-column( prop="currentTotal" label="Current Total" )
     el-row( type="flex" justify="end" align="middle" )
       el-col( v-bind:span="8" )
         el-row( type="flex" justify="end" align="middle" )

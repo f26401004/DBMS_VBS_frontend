@@ -112,6 +112,9 @@ body {
     color: darken(white, 20%);
   }
 }
+.el-scrollbar {
+  height: 100%;
+}
 .vbs_scrollbar_view_container {
   width: calc(100vw - 256px);
 }

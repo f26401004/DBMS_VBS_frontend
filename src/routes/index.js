@@ -8,6 +8,9 @@ import GeneralPage from '@/pages/GeneralPage.vue'
 // import DepositPage from '@/pages/DepositPage.vue'
 import InsurancePage from '@/pages/InsurancePage.vue'
 import InsuranceCheckPage from '@/pages/InsuranceCheckPage.vue'
+import UserPage from '@/pages/UserPage.vue'
+import UserDetailPage from '@/pages/UserDetailPage.vue'
+import StatisticsPage from '@/pages/StatisticsPage.vue'
 
 Vue.use(VueRouter)
 
@@ -25,12 +28,24 @@ export default new VueRouter({
       component: GeneralPage
     },
     {
+      path: '/users',
+      component: UserPage
+    },
+    {
+      path: '/users/:SSN',
+      component: UserDetailPage
+    },
+    {
       path: '/insurance/apply',
       component: InsurancePage
     },
     {
       path: '/insurance/check',
       component: InsuranceCheckPage
+    },
+    {
+      path: '/statistics',
+      component: StatisticsPage
     },
     {
       path: '/table',

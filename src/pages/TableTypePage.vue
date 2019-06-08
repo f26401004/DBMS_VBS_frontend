@@ -191,7 +191,7 @@ export default {
       currentIndex: -1,
       displayTableColumns: {
         users: [ 'username', 'authCode', 'SSN', 'permission', 'sex', 'createdAt', 'updatedAt' ],
-        cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
+        cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'bonusPoint', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
@@ -205,7 +205,7 @@ export default {
       },
       tableColumns: {
         users: [ 'username', 'authCode', 'SSN', 'permission', 'sex', 'createdAt', 'updatedAt' ],
-        cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
+        cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'bonusPoint', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
@@ -219,7 +219,7 @@ export default {
       },
       tableQueryColumns: {
         users: [ 'username', 'authCode', 'SSN', 'permission', 'sex', 'createdAt', 'updatedAt' ],
-        cards: [ 'cardNo', 'csc', 'type { id }', 'assets', 'owner { username }', 'createdAt', 'updatedAt' ],
+        cards: [ 'cardNo', 'csc', 'type { id }', 'assets', 'bonusPoint', 'owner { username }', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard { cardNo }', 'targetCard { cardNo }', 'type { id }', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
@@ -313,11 +313,14 @@ export default {
             { name: 'csc', type: 'input', datatype: 'String!' },
             { name: 'type', type: 'select-number', options: ['晶片金融卡', 'VISA 金融卡'], values: [1, 2], datatype: 'Int!' },
             { name: 'assets', type: 'input-number', datatype: 'Float!' },
-            { name: 'owner', type: 'input', datatype: 'String!' }
+            { name: 'owner', type: 'input', datatype: 'String!' },
+            { name: 'bonusRate', type: 'input-number', datatype: 'Int!' }
           ]
         case 'cardTypes':
           return [
             { name: 'id', type: 'input-number', datatype: 'Int!' },
+            { name: 'bonusRate', type: 'input-number', datatype: 'Float!' },
+            { name: 'interestRate', type: 'input-number', datatype: 'Float!' },
             { name: 'name', type: 'input', datatype: 'String!' }
           ]
         case 'transactionTypes':
@@ -503,8 +506,12 @@ export default {
         // if the operation is select operation
         if (this.querySentence.toLowerCase().indexOf('select') > -1) {
           this.tableData = JSON.parse(await result.text())
-          const selectedColumns = Object.keys(this.tableData[0])
-          this.displayTableColumns[this.$route.params.type] = selectedColumns
+          if (this.tableData.length > 0) {
+            const selectedColumns = Object.keys(this.tableData[0])
+            this.displayTableColumns[this.$route.params.type] = selectedColumns
+          } else {
+            this.displayTableColumns = []
+          }
         } else {
           this.querySentence = ''
         }

@@ -15,6 +15,48 @@
       el-col( v-bind:span="24" )
         el-row( type="flex" align="middle" v-bind:gutter="16" )
           el-col( v-bind:span="0.5" )
+            i( class="el-icon-search" )
+          el-col( v-bind:span="23.5" )
+            h4 Search Attribute Section
+        el-row 
+          el-col( v-bind:span="24" )
+            el-alert(
+              title="Description:"
+              type="info"
+              description="You can select the attribute and input the keyword to query the database in your need."
+              show-icon
+              v-bind:closable="false"
+            )
+        el-row( type="flex" justify="start" align="middle" )
+          el-col( v-bind:span="2" ) SELECT
+          el-col( v-bind:span="4" )
+            el-select(
+              placeholder="Select the table ..."
+              v-model="queryTable"
+              v-bind:clearable="true"
+            )
+              el-option(
+                v-for="(target, index) of tables"
+                v-bind:key="`table-search-select-option-${index}`"
+                v-bind:label="target"
+                v-bind:value="target"
+              )
+          el-col( v-bind:span="4" )
+            el-select(
+              placeholder="Select the attribute ..."
+              v-model="queryAttribute"
+              v-bind:clearable="true"
+            )
+              el-option(
+                v-for="(target, index) of tableColumns[queryTable.toLowerCase()]"
+                v-bind:key="`table-search-select-option-${index}`"
+                v-bind:label="target"
+                v-bind:value="target"
+              )
+    el-row
+      el-col( v-bind:span="24" )
+        el-row( type="flex" align="middle" v-bind:gutter="16" )
+          el-col( v-bind:span="0.5" )
             i( class="el-icon-s-promotion" )
           el-col( v-bind:span="23.5" )
             h4 Raw Query Section
@@ -74,7 +116,24 @@ export default {
   data: function () {
     return {
       showAddModal: false,
+      queryTable: '',
+      queryAttribute: '',
       querySentence: '',
+      tables: ['Users', 'Cards', 'CardTypes', 'Transactions', 'TransactionTypes', 'Insurances', 'InsuranceTypes', 'InsurancePayments', 'Deposits', 'DepositTypes', 'DepositPayments', 'Costs'],
+      tableColumns: {
+        users: [ 'username', 'authCode', 'SSN', 'permission', 'sex', 'createdAt', 'updatedAt' ],
+        cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
+        cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
+        transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
+        transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
+        insurances: [ 'id', 'user', 'type', 'insured', 'beneficiary', 'createdAt', 'updatedAt' ],
+        insuranceTypes: [ 'id', 'name', 'value', 'terms', 'interestRate', 'createdAt', 'updatedAt' ],
+        insurancePayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
+        deposits: [ 'id', 'user', 'type', 'interestType', 'terms', 'createdAt', 'updatedAt' ],
+        depositTypes: [ 'id', 'name', 'fixedInterest', 'floatingInterest', 'createdAt', 'updatedAt' ],
+        depositPayments: [ 'id', 'deadline', 'term', 'status', 'createdAt', 'updatedAt' ],
+        costs: [ 'id', 'name', 'value', 'createdAt', 'updatedAt' ]
+      },
       displayTableColumns: [],
       tableData: []
     }
@@ -101,14 +160,18 @@ export default {
         // if the operation is select operation
         if (this.querySentence.toLowerCase().indexOf('select') > -1) {
           this.tableData = await result.json()
-          const selectedColumns = Object.keys(this.tableData[0])
-          this.displayTableColumns = selectedColumns
+          if (this.tableData.length > 0) {
+            const selectedColumns = Object.keys(this.tableData[0])
+            this.displayTableColumns = selectedColumns
+          } else {
+            this.displayTableColumns = []
+          }
         } else {
           this.querySentence = ''
         }
         this.$message.success('Successful operation!!')
       } catch (error) {
-        const msg = await error.text()
+        const msg = await error.message
         this.$message.error(msg)
         console.log(msg)
       }

@@ -16,12 +16,20 @@
             template( slot="title" )
               i( class="el-icon-money" )
               span General
+          el-menu-item( index="/users" )
+            template( slot="title" )
+              i( class="el-icon-user-solid" )
+              span User
           el-submenu( index="/submenu-insurance" )
             template( slot="title" )
               i( class="el-icon-notebook-2" )
               span Insurance
             el-menu-item( index="/insurance/apply" ) Apply
             el-menu-item( index="/insurance/check" ) Check
+          el-menu-item( index="/statistics" )
+            template( slot="title" )
+              i( class="el-icon-data-analysis" )
+              span Statistics
           el-menu-item( index="/table" ) 
             template( slot="title" )
               i( class="el-icon-menu" )
