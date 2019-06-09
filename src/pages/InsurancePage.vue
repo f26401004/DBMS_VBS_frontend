@@ -39,8 +39,8 @@
 </template>
 
 <script>
-import SavingInsuranceForm from '@/components/SavingInsuranceForm.vue'
-import GeneralInsuranceForm from '@/components/GeneralInsuranceForm.vue'
+import SavingInsuranceForm from '@/components/insurances/SavingInsuranceForm.vue'
+import GeneralInsuranceForm from '@/components/insurances/GeneralInsuranceForm.vue'
 import UUIDV4 from 'uuid/v4'
 
 export default {

@@ -131,7 +131,7 @@ export default {
         this.displayUsers = this.users.slice()
         return
       }
-      this.displayUsers = this.users.filter(target => target.SSN === newValue)
+      this.displayUsers = this.users.filter(target => target.SSN.indexOf(newValue) > -1)
     })
   },
   methods: {

@@ -49,6 +49,16 @@
               el-row( type="flex" justify="space-between" align="middle" v-bind:gutter="16" )
                 el-tag UpdatedAt
                 label {{ userData.updatedAt }}
+              el-divider
+              el-row( type="flex" justify="space-between" align="middle" v-bind:gutter="16" )
+                el-tag Total Transaction
+                label {{ userData.transactionInfo.totalNumber }}
+              el-row( type="flex" justify="space-between" align="middle" v-bind:gutter="16" )
+                el-tag Total Transaction Value
+                label {{ userData.transactionInfo.totalValue }}
+              el-row( type="flex" justify="space-between" align="middle" v-bind:gutter="16" )
+                el-tag Average Transaction Value
+                label {{ (userData.transactionInfo.totalValue / userData.transactionInfo.totalNumber).toFixed(2) }}
         el-row
           el-col( v-bind:span="24" )
             el-card( shadow="hover" )
@@ -75,9 +85,9 @@
                     el-row( type="flex" align="middle" v-bind:gutter="16" )
                       el-col( v-bind:span="0.5" )
                         i( class="el-icon-bank-card" )
-                      el-col( v-bind:span="20" )
+                      el-col( v-bind:span="19" )
                         h4 {{ card.cardNo }}
-                      el-col( v-bind:span="4" )
+                      el-col( v-bind:span="5" )
                         label {{ card.type.name }}
                   el-row( type="flex" justify="start" align="middle" )
                     el-col( v-bind:span="4" )
@@ -107,6 +117,15 @@
                 v-bind:label="card.cardNo"
                 v-bind:name="card.cardNo"
               )
+                el-row( type="flex" justify="end" align="middle" v-bind:gutter="16" )
+                  el-col( v-bind:span="4" )
+                    el-tag Total Transaction
+                  el-col( v-bind:span="2" )
+                    label {{ card.transactions.length }}
+                  el-col( v-bind:span="5" )
+                    el-tag Total Transaction Value
+                  el-col( v-bind:span="3" )
+                    label {{ card.transactions.reduce((accumulator, currentValue) => accumulator + currentValue.value, 0) }}
                 el-table( v-bind:data="card.transactions.slice((currentPage - 1) * 10, currentPage * 10)" )
                   el-table-column(
                     prop="id"
@@ -121,7 +140,7 @@
                     label="targetCard"
                   )
                   el-table-column(
-                    prop="type.id"
+                    prop="type.name"
                     label="type"
                   )
                   el-table-column(
@@ -233,7 +252,7 @@ export default {
             cards {
               cardNo, type { id, name }, assets, bonusPoint, createdAt, updatedAt,
               transactions {
-                id, userCard { cardNo }, targetCard { cardNo }, type { id }, value, createdAt, updatedAt
+                id, userCard { cardNo }, targetCard { cardNo }, type { name }, value, createdAt, updatedAt
               }
             }
           }
@@ -246,6 +265,17 @@ export default {
       },
       update: function (data) {
         data = data.user
+        // compute the data
+        data.transactionInfo = {
+          totalNumber: 0,
+          totalValue: 0
+        }
+        data.cards.forEach(card => {
+          card.transactions.forEach(transaction => {
+            data.transactionInfo.totalNumber += 1
+            data.transactionInfo.totalValue += transaction.value
+          })
+        })
         this.editUserData.username = data.username
         this.editUserData.sex = data.sex
         this.editUserData.birthday = data.birthday

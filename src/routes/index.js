@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+import TestPage from '@/pages/TestPage.vue'
 import IndexPage from '@/pages/IndexPage.vue'
 import TablePage from '@/pages/TablePage.vue'
 import TableTypePage from '@/pages/TableTypePage.vue'
@@ -19,6 +20,10 @@ const types = ['users', 'cards', 'cardTypes', 'transactions', 'transactionTypes'
 
 export default new VueRouter({
   routes: [
+    {
+      path: '/test',
+      component: TestPage
+    },
     {
       path: '/',
       component: IndexPage

@@ -12,6 +12,10 @@
           text-color="#fff"
           active-text-color="#ffd04b"
         )
+          el-menu-item( index="/test" )
+            template( slot="title" )
+              i( class="el-icon-s-tools" )
+              span Test
           el-menu-item( index="/general" )
             template( slot="title" )
               i( class="el-icon-money" )

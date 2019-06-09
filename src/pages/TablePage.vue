@@ -15,48 +15,6 @@
       el-col( v-bind:span="24" )
         el-row( type="flex" align="middle" v-bind:gutter="16" )
           el-col( v-bind:span="0.5" )
-            i( class="el-icon-search" )
-          el-col( v-bind:span="23.5" )
-            h4 Search Attribute Section
-        el-row 
-          el-col( v-bind:span="24" )
-            el-alert(
-              title="Description:"
-              type="info"
-              description="You can select the attribute and input the keyword to query the database in your need."
-              show-icon
-              v-bind:closable="false"
-            )
-        el-row( type="flex" justify="start" align="middle" )
-          el-col( v-bind:span="2" ) SELECT
-          el-col( v-bind:span="4" )
-            el-select(
-              placeholder="Select the table ..."
-              v-model="queryTable"
-              v-bind:clearable="true"
-            )
-              el-option(
-                v-for="(target, index) of tables"
-                v-bind:key="`table-search-select-option-${index}`"
-                v-bind:label="target"
-                v-bind:value="target"
-              )
-          el-col( v-bind:span="4" )
-            el-select(
-              placeholder="Select the attribute ..."
-              v-model="queryAttribute"
-              v-bind:clearable="true"
-            )
-              el-option(
-                v-for="(target, index) of tableColumns[queryTable.toLowerCase()]"
-                v-bind:key="`table-search-select-option-${index}`"
-                v-bind:label="target"
-                v-bind:value="target"
-              )
-    el-row
-      el-col( v-bind:span="24" )
-        el-row( type="flex" align="middle" v-bind:gutter="16" )
-          el-col( v-bind:span="0.5" )
             i( class="el-icon-s-promotion" )
           el-col( v-bind:span="23.5" )
             h4 Raw Query Section
@@ -116,13 +74,15 @@ export default {
   data: function () {
     return {
       showAddModal: false,
-      queryTable: '',
-      queryAttribute: '',
+      queryTable: [],
+      queryAttribute: [],
+      queryWhereClause: [],
+      queryGroupBy: [],
       querySentence: '',
       tables: ['Users', 'Cards', 'CardTypes', 'Transactions', 'TransactionTypes', 'Insurances', 'InsuranceTypes', 'InsurancePayments', 'Deposits', 'DepositTypes', 'DepositPayments', 'Costs'],
       tableColumns: {
         users: [ 'username', 'authCode', 'SSN', 'permission', 'sex', 'createdAt', 'updatedAt' ],
-        cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'createdAt', 'updatedAt' ],
+        cards: [ 'cardNo', 'csc', 'type', 'assets', 'owner', 'bonusPoint', 'createdAt', 'updatedAt' ],
         cardTypes: [ 'id', 'name', 'bonusRate', 'interestRate', 'createdAt', 'updatedAt' ],
         transactions: [ 'id', 'userCard', 'targetCard', 'type', 'value', 'createdAt', 'updatedAt' ],
         transactionTypes: [ 'id', 'name', 'createdAt', 'updatedAt' ],
@@ -136,6 +96,16 @@ export default {
       },
       displayTableColumns: [],
       tableData: []
+    }
+  },
+  computed: {
+    avalableColumns: function () {
+      let temp = []
+      this.queryTable.forEach(table => {
+        const name = table.charAt(0).toLowerCase() + table.substr(1)
+        temp = [...this.tableColumns[name].map(attr => `${attr} - ${table}`), ...temp]
+      })
+      return temp
     }
   },
   methods: {

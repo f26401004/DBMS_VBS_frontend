@@ -8,11 +8,43 @@
         el-breadcrumb( separator-class="el-icon-arrow-right" )
           el-breadcrumb-item( to="/" ) Homepage
           el-breadcrumb-item( to="/statistics" ) Statistics
+    el-row
+      el-tabs( type="card" )
+        el-tab-pane(
+          v-for="(iter, index) of tabs"
+          v-bind:key="`tab-${iter.name}-${index}`"
+          v-bind:label="iter.label"
+          v-bind:name="iter.name"
+        )
+          component( v-bind:is="iter.content" )
+
 </template>
 
 <script>
-export default {
+import UserAnalysis from '@/components/statistics/UserAnalysis.vue'
+import TransactionAnalysis from '@/components/statistics/TransactionAnalysis.vue'
 
+export default {
+  components: {
+    UserAnalysis,
+    TransactionAnalysis
+  },
+  data: function () {
+    return {
+      tabs: [
+        {
+          name: 'Users',
+          label: 'Users',
+          content: UserAnalysis
+        },
+        {
+          name: 'Transactions',
+          label: 'Transactions',
+          content: TransactionAnalysis
+        }
+      ]
+    }
+  }
 }
 </script>
 
