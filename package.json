@@ -32,7 +32,7 @@
     "js-sql-parse": "^0.1.71",
     "node-sass": "^4.12.0",
     "normalize.css": "^8.0.1",
-    "pug": "^2.0.3",
+    "pug": "^3.0.1",
     "pug-filters": "^3.1.0",
     "pug-loader": "^2.4.0",
     "pug-plain-loader": "^1.0.0",
